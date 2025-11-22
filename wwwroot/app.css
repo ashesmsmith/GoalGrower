@@ -1,13 +1,67 @@
+:root {
+    --primary-color: #FBF8E1;
+    --secondary-color: #001404;
+    --accent-color-1-dark: #01500E;
+    --accent-color-1-light: #A0DA7C;
+    --accent-color-2-dark: #F0BF6F;
+    --accent-color-2-light: #F7E8A5;
+    --primary-font: 'Tenor Sans', serif;
+    --secondary-font: 'Montserrat', sans-serif;
+}
+
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    font-family: var(--secondary-font);
+}
+
+h1 {
+    font-family: var(--primary-font);
+    font-size: 4rem;
 }
 
 body {
+    background-color: var(--primary-color);
+    text-align: center;
     margin: 1rem;
 }
 
 nav {
     margin: 1rem auto
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: var(--accent-color-1-light);
+    gap: 1rem;
+    width: fit-content;
+    margin: 2rem auto;
+    padding: 1.5rem 5rem;
+    border: 2px solid var(--accent-color-1-dark);
+    border-radius: 10px;
+}
+
+label {
+    font-size: 1.25rem;
+}
+
+input {
+    background-color: var(--primary-color);
+    opacity: .8;
+    padding: .5rem;
+    border: none;
+    border-radius: 5px;
+}
+
+button {
+    background-color: var(--accent-color-2-light);
+    border: none;
+    align-self: center;;
+    padding: .75rem 1.5rem;
+    font-size: 1.25rem;
+    border-radius: 10px;
+    cursor: pointer;
 }
