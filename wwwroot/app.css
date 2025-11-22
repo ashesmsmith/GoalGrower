@@ -31,37 +31,40 @@ nav {
     margin: 1rem auto
 }
 
-form {
+.form {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    background-color: var(--accent-color-1-light);
     gap: 1rem;
     width: fit-content;
     margin: 2rem auto;
     padding: 1.5rem 5rem;
-    border: 2px solid var(--accent-color-1-dark);
     border-radius: 10px;
 }
 
 label {
     font-size: 1.25rem;
+    align-items: flex-start;
 }
 
 input {
     background-color: var(--primary-color);
-    opacity: .8;
+    margin-bottom: 1rem;
     padding: .5rem;
+    width: 100%;
     border: none;
-    border-radius: 5px;
+    border-bottom: 1px solid var(--secondary-color);
 }
 
 button {
     background-color: var(--accent-color-2-light);
-    border: none;
-    align-self: center;;
-    padding: .75rem 1.5rem;
+    background-image: linear-gradient(var(--accent-color-1-light), var(--accent-color-2-light));
     font-size: 1.25rem;
-    border-radius: 10px;
+    width: 100%;
+    align-self: center;
+    margin: 1rem auto;
+    padding: .75rem 1.5rem;
+    border: none;
+    border-radius: 25px;
     cursor: pointer;
 }

@@ -1,25 +1,32 @@
 ﻿@page "/"
 @layout NoNavLayout
+@using GoalGrower.Models
 
 <PageTitle>Goal Grower - Home Page</PageTitle>
 
 <img src="images\logo.png" alt="Goal Grower Logo" width="500" height="500" />
 <h1>Goal Grower</h1>
 
-<form class="login-form">
-    <label for="username">Email:</label>
-    <input type="text" id="username" name="username" />
+<EditForm FormName="register" Model="LoginModel" OnValidSubmit="HandleLogin" class="form">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" />
+    <input type="text" id="username" name="username" placeholder="Email" />
+    <input type="password" id="password" name="password" placeholder="Password" />
 
     <button type="submit">Sign In</button>
 
-    <p>New to Goal Grower? Register Here.</p>
-</form>
+    <p>New to Goal Grower? <a href="/register">Register Here.</a></p>
+</EditForm>
 
 <NavLink href="/dashboard">Go to Dashboard</NavLink>
-<p>Future Sign In Redirect</p>
+<p>Future Sign In Button Redirect</p>
 
-<NavLink href="/register">Go to Register</NavLink>
-<p>Future Register Redirect</p>
+@code {
+    private LoginModel LoginModel = new LoginModel();
+
+    private async Task HandleLogin()
+    {
+        // Handle login logic here
+    }
+}
