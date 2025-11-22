@@ -7,12 +7,12 @@
 <img src="images\logo.png" alt="Goal Grower Logo" width="500" height="500" />
 <h1>Goal Grower</h1>
 
-<EditForm FormName="register" Model="LoginModel" OnValidSubmit="HandleLogin" class="form">
+<EditForm FormName="register" Model="loginModel" OnValidSubmit="HandleLogin">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <input type="text" id="username" name="username" placeholder="Email" />
-    <input type="password" id="password" name="password" placeholder="Password" />
+    <InputText @bind-Value="loginModel.Email" type="text" id="username" name="username" placeholder="Email" />
+    <InputText @bind-Value="loginModel.Password" type="password" id="password" name="password" placeholder="Password" />
 
     <button type="submit">Sign In</button>
 
@@ -23,7 +23,7 @@
 <p>Future Sign In Button Redirect</p>
 
 @code {
-    private LoginModel LoginModel = new LoginModel();
+    private LoginModel loginModel = new LoginModel();
 
     private async Task HandleLogin()
     {
