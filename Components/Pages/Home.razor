@@ -1,13 +1,32 @@
 ﻿@page "/"
 @layout NoNavLayout
+@using GoalGrower.Models
 
-<PageTitle>Goal Grower - Homepage</PageTitle>
+<PageTitle>Goal Grower - Home Page</PageTitle>
 
-<h1>Home Page</h1>
-<h2>Coming Soon!</h2>
+<img src="images\logo.png" alt="Goal Grower Logo" width="500" height="500" />
+<h1>Goal Grower</h1>
+
+<EditForm FormName="register" Model="loginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText @bind-Value="loginModel.Email" type="text" id="username" name="username" placeholder="Email" />
+    <InputText @bind-Value="loginModel.Password" type="password" id="password" name="password" placeholder="Password" />
+
+    <button type="submit">Sign In</button>
+
+    <p>New to Goal Grower? <a href="/register">Register Here.</a></p>
+</EditForm>
 
 <NavLink href="/dashboard">Go to Dashboard</NavLink>
-<p>Future Sign In Redirect</p>
+<p>Future Sign In Button Redirect</p>
 
-<NavLink href="/register">Go to Register</NavLink>
-<p>Future Register Redirect</p>
+@code {
+    private LoginModel loginModel = new LoginModel();
+
+    private async Task HandleLogin()
+    {
+        // Handle login logic here
+    }
+}

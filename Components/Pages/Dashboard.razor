@@ -1,15 +1,26 @@
-@using System.ComponentModel.DataAnnotations
-@using Microsoft.AspNetCore.Authorization
-
-@attribute [Authorize]
 @page "/dashboard"
 @layout NoNavLayout
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 
 <PageTitle>Goal Grower - Dashboard Page</PageTitle>
 
-<h1>Dashboard Page</h1>
-<h2>Coming Soon!</h2>
-<p>Will require a unique ID to view</p>
+<NavLink href="/dashboard">Sign Out</NavLink>
+
+<h1>Welcome {User}!</h1>
+
+<button type="submit" class="add-goal-btn">Add New Goal</button>
+
+<h2>Active Goals</h2>
+<div class="active-goals-container">
+    <ul>
+        <li>{Goal #1 Placeholder}</li>
+        <li>{Goal #2 Placeholder}</li>
+        <li>{Goal #3 Placeholder}</li>
+    </ul>
+</div>
+
 
 <NavLink href="/addgoal">Go to Add New Goal</NavLink>
 <p>Future Add New Goal Redirect</p>
