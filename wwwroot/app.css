@@ -19,6 +19,7 @@
 h1 {
     font-family: var(--primary-font);
     font-size: 4rem;
+    color: var(--accent-color-1-dark);
 }
 
 body {
@@ -67,4 +68,30 @@ button {
     border: none;
     border-radius: 25px;
     cursor: pointer;
+}
+
+.active-goals-container {
+    margin: 1rem auto;
+    padding: 1rem;
+    border-top: 1px solid var(--accent-color-1-dark);
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin: 1rem auto;
+    padding: .75rem 1.5rem;
+    background-color: var(--accent-color-1-light);
+    border-radius: 10px;
+    width: fit-content;
+}
+
+.validation-message {
+    color: red;
+    font-size: 1rem;
+    text-align: left;
+    margin-top: -0.5rem;
 }
