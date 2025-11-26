@@ -1,24 +1,22 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using GoalGrower.Models;
 
 namespace GoalGrower.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<User>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
         }
 
-        // public DbSet<User> Users => Set<User>();
         public DbSet<Transaction> Transactions => Set<Transaction>();
         public DbSet<Goal> Goals => Set<Goal>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder);  // 🚨 MUST be here for Identity tables
 
             // USER → TRANSACTIONS (1-to-many)
             modelBuilder.Entity<User>()
@@ -39,7 +37,7 @@ namespace GoalGrower.Data
                 .HasMany(g => g.Transactions)
                 .WithOne(t => t.Goal)
                 .HasForeignKey(t => t.GoalId)
-                .OnDelete(DeleteBehavior.SetNull);  // Goal deleted → keep transactions
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

@@ -5,6 +5,7 @@
 @inject UserManager<User> UserManager
 @inject SignInManager<User> SignInManager
 @inject NavigationManager Navigation
+@rendermode InteractiveServer
 
 <PageTitle>Goal Grower Register</PageTitle>
 
@@ -51,7 +52,13 @@
 
         if (result.Succeeded)
         {
+            // Sign in the user
             await SignInManager.SignInAsync(user, isPersistent: false);
+
+            // Let Blazor finish the current render cycle before redirecting
+            await Task.Yield();
+
+            // Now redirect to dashboard
             Navigation.NavigateTo("/dashboard");
         }
         else
@@ -59,4 +66,5 @@
             errorMessage = string.Join(" | ", result.Errors.Select(e => e.Description));
         }
     }
+
 }

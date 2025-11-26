@@ -21,7 +21,7 @@ namespace GoalGrower.Models
 
         // Foreign key
         [ForeignKey("User")]
-        public int UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         // Navigation property
         public User? User { get; set; }
