@@ -1,6 +1,39 @@
 @page "/addgoal"
+@layout MainLayout
+
+@using GoalGrower.Models
+@rendermode InteractiveServer
 
 <PageTitle>Goal Grower - Add New Goal Page</PageTitle>
 
-<h1>Add New Goal Page</h1>
-<h2>Coming Soon!</h2>
+<h1>Add New Goal</h1>
+
+<EditForm FormName="AddGoalForm" Model="goalModel" OnValidSubmit="HandleAddGoal">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="GoalName" @bind-Value="goalModel.GoalName" placeholder="Goal Name" />
+    <InputText id="GoalDescription" @bind-Value="goalModel.GoalDescription" placeholder="Description" />
+    <InputNumber id="GoalAmount" @bind-Value="goalModel.GoalAmount" />
+    <InputDate id="CompletionDate" @bind-Value="goalModel.CompletionDate" />
+
+    <button type="submit">Add Goal</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+
+@code {
+    private GoalModel goalModel { get; set; } = new GoalModel();
+    private string errorMessage = string.Empty;
+
+    private async Task HandleAddGoal()
+    {
+        errorMessage = string.Empty;
+
+        // Logic to add the goal goes here
+        // After adding the goal navigate back to dashboard
+    }
+}

@@ -1,7 +1,39 @@
 @page "/editgoal"
+@layout MainLayout
+
+@using GoalGrower.Models
+@rendermode InteractiveServer
 
 <PageTitle>Goal Grower - Edit Goal Details Page</PageTitle>
 
-<h1>Edit Goal Details Page</h1>
-<h2>Coming Soon!</h2>
-<p>Will require a unique ID to view</p>
+<h1>Edit Goal Details</h1>
+
+<EditForm FormName="EditGoalForm" Model="goalModel" OnValidSubmit="HandleEditGoal">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="GoalName" @bind-Value="goalModel.GoalName" placeholder="Goal Name" />
+    <InputText id="GoalDescription" @bind-Value="goalModel.GoalDescription" placeholder="Description" />
+    <InputNumber id="GoalAmount" @bind-Value="goalModel.GoalAmount" />
+    <InputDate id="CompletionDate" @bind-Value="goalModel.CompletionDate" />
+
+    <button type="submit">Save Changes</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+
+@code {
+    private GoalModel goalModel { get; set; } = new GoalModel();
+    private string errorMessage = string.Empty;
+
+    private async Task HandleEditGoal()
+    {
+        errorMessage = string.Empty;
+
+        // Logic to update the goal goes here
+        // After updating the goal navigate back to dashboard
+    }
+}

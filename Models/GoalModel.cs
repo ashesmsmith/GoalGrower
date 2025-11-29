@@ -4,18 +4,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GoalGrower.Models
 {
-    public class Goal
+    public class GoalModel
     {
         [Key]
         public int GoalId { get; set; }
 
         [Required]
-        public string Name { get; set; } = string.Empty;
+        public string GoalName { get; set; } = string.Empty;
 
-        public string? Description { get; set; }
+        public string? GoalDescription { get; set; }
 
         [Required]
-        public decimal Amount { get; set; }
+        public decimal GoalAmount { get; set; }
 
         public DateTime CompletionDate { get; set; }
 
@@ -24,8 +24,8 @@ namespace GoalGrower.Models
         public string UserId { get; set; } = string.Empty;
 
         // Navigation property
-        public User? User { get; set; }
+        public UserModel? User { get; set; }
 
-        public List<Transaction>? Transactions { get; set; }
+        public List<TransactionModel>? Transactions { get; set; }
     }
 }

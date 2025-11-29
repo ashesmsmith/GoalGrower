@@ -1,25 +1,59 @@
 @page "/goaldetails"
+@layout MainLayout
+
+@using GoalGrower.Models
 
 <PageTitle>Goal Grower - Goal Details Page</PageTitle>
 
-<h1>Goal Details Page</h1>
-<h2>Coming Soon!</h2>
-<p>Will require a unique ID to view</p>
+<h1>@goal.GoalName Details</h1>
 
-<NavLink href="/editgoal">Go to Edit Goal</NavLink>
-<p>Future Edit Goal Redirect</p>
+<div class="details-container">
+    <p>Description:</p>
+    <p>@goal.GoalDescription</p>
 
-<NavLink href="/deletegoal">Go to Delete Goal</NavLink>
-<p>Future Delete Goal Redirect</p>
+    <p>Goal Amount:</p>
+    <p>$@goal.GoalAmount</p>
 
-<NavLink href="/addtransaction">Go to Add New Transaction</NavLink>
-<p>Future Add New Transaction Redirect</p>
+    <p>Complete By Date:</p>
+    <p>@goal.CompletionDate</p>
+</div>
 
-<NavLink href="/transactiondetails">Go to Transaction Details</NavLink>
-<p>Future Transaction Details Redirect</p>
+<h2>Transactions</h2>
+<button type="submit">Add Transaction</button>
 
-<NavLink href="/edittransaction">Go to Edit Transaction</NavLink>
-<p>Future Edit Transaction Redirect</p>
+<div class="transactions-container">
+    @if (transactions != null && transactions.Any())
+    {
+        <ul>
+            @foreach (var transaction in transactions)
+            {
+                <li>@transaction.TransactionDate | @transaction.TransactionType | @transaction.TransactionAmount</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>Nothing here yet!</p>
+    }
+</div>
 
-<NavLink href="/deletetransaction">Go to Delete Transaction</NavLink>
-<p>Future Delete Transaction Redirect</p>
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+
+@code {
+    [Parameter]
+    public int GoalId { get; set; }
+
+    private GoalModel goal = new GoalModel();
+    private List<TransactionModel> transactions = new List<TransactionModel>();
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        // Logic to load goal details here
+    }
+
+}

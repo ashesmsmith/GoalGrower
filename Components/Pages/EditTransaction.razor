@@ -1,7 +1,43 @@
 @page "/edittransaction"
+@layout MainLayout
+
+@using GoalGrower.Models
+@rendermode InteractiveServer
 
 <PageTitle>Goal Grower - Edit Transaction Page</PageTitle>
 
-<h1>Edit Transaction Page</h1>
-<h2>Coming Soon!</h2>
-<p>Will require a unique ID to view</p>
+<h1>Edit Transaction</h1>
+
+<EditForm FormName="EditTransactionForm" Model="transactionModel" OnValidSubmit="HandleEditTransaction">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputDate id="TransactionDate" @bind-Value="transactionModel.TransactionDate" />
+    <InputText id="TransactionDescription" @bind-Value="transactionModel.TransactionDescription"
+        placeholder="Description" />
+    <InputRadioGroup id="TransactionType" @bind-Value="transactionModel.TransactionType">
+        <InputRadio Value="TransactionModel.TransactionTypeEnum.Deposit" /> Deposit
+        <InputRadio Value="TransactionModel.TransactionTypeEnum.Withdrawal" /> Withdrawal
+    </InputRadioGroup>
+    <InputNumber id="TransactionAmount" @bind-Value="transactionModel.TransactionAmount" />
+
+    <button type="submit">Save Changes</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+
+@code {
+    private TransactionModel transactionModel { get; set; } = new TransactionModel();
+    private string errorMessage = string.Empty;
+
+    private async Task HandleEditTransaction()
+    {
+        errorMessage = string.Empty;
+
+        // Logic to update the transaction goes here
+        // After updating the transaction navigate back to Goal Details
+    }
+}

@@ -1,7 +1,42 @@
 @page "/transactiondetails"
+@using System.Reflection.Metadata
+@layout MainLayout
+
+@using GoalGrower.Models
 
 <PageTitle>Goal Grower Transaction Details Page</PageTitle>
 
-<h1>Transaction Details Page</h1>
-<h2>Coming Soon!</h2>
-<p>Will require a unique ID to view</p>
+<h1>Transaction Details</h1>
+
+<div class="details-container">
+    <p>Date:</p>
+    <p>@transaction.TransactionDate</p>
+
+    <p>Type:</p>
+    <p>@transaction.TransactionType</p>
+
+    <p>Amount:</p>
+    <p>@transaction.TransactionAmount</p>
+
+    <p>Description</p>
+    <p>@transaction.TransactionDescription</p>
+</div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+
+@code {
+    [Parameter]
+    public int TransactionId { get; set; }
+
+    private TransactionModel transaction = new TransactionModel();
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        // Logic to load goal details here
+    }
+}
