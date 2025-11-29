@@ -4,40 +4,45 @@ using GoalGrower.Models;
 
 namespace GoalGrower.Data
 {
-    public class AppDbContext : IdentityDbContext<User>
+    public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
         }
+        public DbSet<UserModel> Users { get; set; }
 
-        public DbSet<Transaction> Transactions => Set<Transaction>();
-        public DbSet<Goal> Goals => Set<Goal>();
+        public DbSet<TransactionModel> Transactions => Set<TransactionModel>();
+        public DbSet<GoalModel> Goals => Set<GoalModel>();
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);  // 🚨 MUST be here for Identity tables
-
+            // username must be unique
+            modelBuilder.Entity<UserModel>()
+            .HasIndex(u => u.Username)
+            .IsUnique();
             // USER → TRANSACTIONS (1-to-many)
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<UserModel>()
                 .HasMany(u => u.Transactions)
                 .WithOne(t => t.User)
                 .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // USER → GOALS (1-to-many)
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<UserModel>()
                 .HasMany(u => u.Goals)
                 .WithOne(g => g.User)
                 .HasForeignKey(g => g.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // GOAL → TRANSACTIONS (1-to-many — optional link)
-            modelBuilder.Entity<Goal>()
+            modelBuilder.Entity<GoalModel>()
                 .HasMany(g => g.Transactions)
                 .WithOne(t => t.Goal)
                 .HasForeignKey(t => t.GoalId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

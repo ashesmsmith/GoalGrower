@@ -1,29 +1,24 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Identity
-@using GoalGrower.Models
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
-@inject HttpClient Http
 
 <nav>
-    <NavLink href="/">Sign Out</NavLink>
-    <NavLink href="/dashboard">Dashboard</NavLink>
-
     @if (isAuthenticated)
     {
+        <NavLink href="/dashboard">Dashboard</NavLink>
         <a href="#" @onclick="Logout">Sign Out</a>
     }
     else
     {
-        <NavLink href="/login">Login</NavLink>
-        <NavLink href="/register">Register</NavLink>
+        <NavLink href="/">Login</NavLink>
+        <NavLink href="/add-user">Register</NavLink>
     }
 </nav>
 
 @code {
     private bool isAuthenticated = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
@@ -31,10 +26,7 @@
 
     private async Task Logout()
     {
-        // Call server-side logout API
-        await Http.PostAsync("api/auth/logout", null);
-
-        // Force a reload to clear authentication state
-        Navigation.NavigateTo("/login", forceLoad: true);
+        // Blazor logout = just reset user + redirect
+        Navigation.NavigateTo("/home", forceLoad: true);
     }
 }
