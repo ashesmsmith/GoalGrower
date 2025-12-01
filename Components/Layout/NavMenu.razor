@@ -7,7 +7,9 @@
 
 <nav>
     <NavLink href="/">Sign Out</NavLink>
-    <NavLink href="/dashboard">Dashboard</NavLink>
+    <NavLink href="/dashboard">
+        <img src="images\logo.png" alt="Goal Grower Logo" width="500" height="500" />
+    </NavLink>
 
     @if (isAuthenticated)
     {
@@ -15,8 +17,8 @@
     }
     else
     {
-        <NavLink href="/login">Login</NavLink>
-        <NavLink href="/register">Register</NavLink>
+        @* <NavLink href="/login">Login</NavLink>
+        <NavLink href="/register">Register</NavLink> *@
     }
 </nav>
 

@@ -9,17 +9,10 @@
 <h1>Transaction Details</h1>
 
 <div class="details-container">
-    <p>Date:</p>
-    <p>@transaction.TransactionDate</p>
-
-    <p>Type:</p>
-    <p>@transaction.TransactionType</p>
-
-    <p>Amount:</p>
-    <p>@transaction.TransactionAmount</p>
-
-    <p>Description</p>
-    <p>@transaction.TransactionDescription</p>
+    <p>Date: @transaction.TransactionDate</p>
+    <p>Type: @transaction.TransactionType</p>
+    <p>Amount: @transaction.TransactionAmount</p>
+    <p>Description: @transaction.TransactionDescription</p>
 </div>
 
 @if (!string.IsNullOrEmpty(errorMessage))

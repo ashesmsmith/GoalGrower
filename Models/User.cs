@@ -15,7 +15,7 @@ namespace GoalGrower.Models
         public decimal BankAmount { get; set; }
 
         // Navigation properties
-        public List<Transaction>? Transactions { get; set; }
-        public List<Goal>? Goals { get; set; }
+        public List<TransactionModel>? Transactions { get; set; }
+        public List<GoalModel>? Goals { get; set; }
     }
 }

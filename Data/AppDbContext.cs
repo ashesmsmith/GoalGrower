@@ -11,8 +11,8 @@ namespace GoalGrower.Data
         {
         }
 
-        public DbSet<Transaction> Transactions => Set<Transaction>();
-        public DbSet<Goal> Goals => Set<Goal>();
+        public DbSet<TransactionModel> Transactions => Set<TransactionModel>();
+        public DbSet<GoalModel> Goals => Set<GoalModel>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,7 +33,7 @@ namespace GoalGrower.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             // GOAL → TRANSACTIONS (1-to-many — optional link)
-            modelBuilder.Entity<Goal>()
+            modelBuilder.Entity<GoalModel>()
                 .HasMany(g => g.Transactions)
                 .WithOne(t => t.Goal)
                 .HasForeignKey(t => t.GoalId)
