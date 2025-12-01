@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@* @page "/"
 @layout NoNavLayout
 @using GoalGrower.Models
 @using GoalGrower.Data
@@ -51,7 +51,7 @@
 
         // Look up the user by username
         var user = await DbContext.Users
-            .FirstOrDefaultAsync(u => u.Username == loginModel.Username);
+            .FirstOrDefaultAsync(u => u.Email == loginModel.Email);
 
         if (user != null && PasswordHelper.VerifyPassword(loginModel.Password, user.Password))
         {
@@ -63,4 +63,4 @@
             errorMessage = "Invalid username or password.";
         }
     }
-}
+} *@

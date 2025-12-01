@@ -20,13 +20,14 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+        
+        @* var authState = await AuthStateProvider.GetAuthenticationStateAsync(); *@
+        @* isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false; *@
     }
 
     private async Task Logout()
     {
         // Blazor logout = just reset user + redirect
-        Navigation.NavigateTo("/home", forceLoad: true);
+        Navigation.NavigateTo("/", forceLoad: true);
     }
 }

@@ -1,15 +1,16 @@
-@page "/add-user"
+@* @page "/add-user"
 
 @using GoalGrower.Data
 @using GoalGrower.Models
 @using static GoalGrower.Models.UserModel
 @inject AppDbContext DbContext
 @rendermode InteractiveServer
+@inject NavigationManager Navigation
+
 
 <h1>Sign Up</h1>
 <EditForm Model="@user" OnValidSubmit="HandleValidSubmit" FormName="RegisterUserForm">
     <DataAnnotationsValidator />
-    <ValidationSummary />
     <p>
         <label>Name:</label>
         <InputText @bind-Value="user.Name" />
@@ -30,13 +31,13 @@
     </p>
 
     <p>
-    <label>Your currency:</label>
-    <InputSelect @bind-Value="user.Currency" TValue="CurrencyType">
-        @foreach (var c in Enum.GetValues(typeof(CurrencyType)).Cast<CurrencyType>())
-        {
-            <option value="@c">@GetCurrencyDisplay(c)</option>
-        }
-    </InputSelect>
+        <label>Your currency:</label>
+        <InputSelect @bind-Value="user.Currency" TValue="CurrencyType">
+            @foreach (var c in Enum.GetValues(typeof(CurrencyType)).Cast<CurrencyType>())
+            {
+                <option value="@c">@GetCurrencyDisplay(c)</option>
+            }
+        </InputSelect>
 
     </p>
     
@@ -45,7 +46,7 @@
         <InputNumber @bind-Value="user.BankAmount"  TValue="decimal" />
     </p>
 
-    <button type="submit" @onclick="ClearForm">Sing Up</button>
+    <button type="submit">Sing Up</button>
 </EditForm>
 
 <p>@statusMessage</p>
@@ -61,8 +62,9 @@
         DbContext.Users.Add(user);
         await DbContext.SaveChangesAsync();
         statusMessage = "User saved successfully!";
+        // Redirect to dashboard
+        Navigation.NavigateTo("/dashboard");
     }
-    private void ClearForm() => user = new UserModel(); // reset form
     private string GetCurrencyDisplay(CurrencyType currency)
     {
         return currency switch
@@ -76,4 +78,4 @@
             _ => currency.ToString()
         };
     }
-}
+} *@

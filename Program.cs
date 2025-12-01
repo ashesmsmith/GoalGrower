@@ -1,7 +1,8 @@
 using GoalGrower.Components;
-using GoalGrower.Models;
 using GoalGrower.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using GoalGrower.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,9 +14,14 @@ builder.Services.AddRazorComponents()
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("GoalGrowerDb")));
 
+// Identity with custom UserModel
+builder.Services.AddDefaultIdentity<UserModel>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = true;
+})
+.AddEntityFrameworkStores<AppDbContext>();
 
 // Add authentication and authorization
-builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
 // Add support for Razor Pages, Controllers, and Blazor Server
@@ -25,19 +31,20 @@ builder.Services.AddServerSideBlazor();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
-// app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
+
 app.MapRazorPages();
 app.MapControllers();
 app.MapRazorComponents<App>()

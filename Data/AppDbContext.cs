@@ -4,24 +4,20 @@ using GoalGrower.Models;
 
 namespace GoalGrower.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<UserModel>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
         }
-        public DbSet<UserModel> Users { get; set; }
-
+        // public DbSet<UserModel> Users { get; set; }
         public DbSet<TransactionModel> Transactions => Set<TransactionModel>();
         public DbSet<GoalModel> Goals => Set<GoalModel>();
 
-         protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // username must be unique
-            modelBuilder.Entity<UserModel>()
-            .HasIndex(u => u.Username)
-            .IsUnique();
-            // USER → TRANSACTIONS (1-to-many)
+            base.OnModelCreating(modelBuilder); // calls for Identity first
+
             modelBuilder.Entity<UserModel>()
                 .HasMany(u => u.Transactions)
                 .WithOne(t => t.User)
@@ -41,8 +37,6 @@ namespace GoalGrower.Data
                 .WithOne(t => t.Goal)
                 .HasForeignKey(t => t.GoalId)
                 .OnDelete(DeleteBehavior.SetNull);
-
-            base.OnModelCreating(modelBuilder);
         }
     }
 }
