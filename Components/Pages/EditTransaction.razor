@@ -34,6 +34,8 @@
 }
 
 @code {
+    [Parameter]
+    public int TransactionId { get; set; }
     private TransactionModel transactionModel { get; set; } = new TransactionModel();
     private string errorMessage = string.Empty;
 

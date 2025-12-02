@@ -16,8 +16,12 @@
     <InputText id="TransactionDescription" @bind-Value="transactionModel.TransactionDescription"
         placeholder="Description" />
     <InputRadioGroup id="TransactionType" @bind-Value="transactionModel.TransactionType">
-        <InputRadio Value="TransactionModel.TransactionTypeEnum.Deposit" /> Deposit
-        <InputRadio Value="TransactionModel.TransactionTypeEnum.Withdrawal" /> Withdrawal
+        <label class="radio-inline">
+            <InputRadio Value="TransactionModel.TransactionTypeEnum.Deposit" /> Deposit
+        </label>
+        <label class="radio-inline">
+            <InputRadio Value="TransactionModel.TransactionTypeEnum.Withdrawal" /> Withdrawal
+        </label>
     </InputRadioGroup>
     <InputNumber id="TransactionAmount" @bind-Value="transactionModel.TransactionAmount" />
 

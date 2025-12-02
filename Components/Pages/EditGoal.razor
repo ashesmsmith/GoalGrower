@@ -26,6 +26,8 @@
 }
 
 @code {
+    [Parameter]
+    public int GoalId { get; set; }
     private GoalModel goalModel { get; set; } = new GoalModel();
     private string errorMessage = string.Empty;
 
