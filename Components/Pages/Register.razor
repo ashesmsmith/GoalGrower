@@ -1,70 +1,81 @@
-@page "/register"
-@layout NoNavLayout
+@* @page "/add-user"
+
+@using GoalGrower.Data
 @using GoalGrower.Models
-@using Microsoft.AspNetCore.Identity
-@inject UserManager<User> UserManager
-@inject SignInManager<User> SignInManager
-@inject NavigationManager Navigation
+@using static GoalGrower.Models.UserModel
+@inject AppDbContext DbContext
 @rendermode InteractiveServer
+@inject NavigationManager Navigation
 
-<PageTitle>Goal Grower Register</PageTitle>
 
-<img src="images\logo.png" alt="Goal Grower Logo" width="500" height="500" class="logo" />
-<h1>Register</h1>
-
-<EditForm FormName="RegisterForm" Model="registerModel" OnValidSubmit="HandleRegister">
+<h1>Sign Up</h1>
+<EditForm Model="@user" OnValidSubmit="HandleValidSubmit" FormName="RegisterUserForm">
     <DataAnnotationsValidator />
-    <ValidationSummary />
+    <p>
+        <label>Name:</label>
+        <InputText @bind-Value="user.Name" />
+    </p>
 
-    <InputText id="Name" @bind-Value="registerModel.Name" placeholder="First Name" />
-    <InputText id="LastName" @bind-Value="registerModel.LastName" placeholder="Last Name" />
-    <InputText id="Email" @bind-Value="registerModel.Email" type="email" placeholder="Email Address" />
-    <InputText id="Password" @bind-Value="registerModel.Password" type="password" placeholder="Password" />
-    <InputText id="ConfirmPassword" @bind-Value="registerModel.ConfirmPassword" type="password"
-        placeholder="Confirm Password" />
+    <p>
+        <label>Last Name:</label>
+        <InputText @bind-Value="user.LastName" />
+    </p>
 
-    <button type="submit">Register</button>
+    <p>
+        <label>Username:</label>
+        <InputText @bind-Value="user.Username" />
+    </p>
+    <p>
+        <label>Password:</label>
+        <InputText @bind-Value="user.Password" type="password" />
+    </p>
+
+    <p>
+        <label>Your currency:</label>
+        <InputSelect @bind-Value="user.Currency" TValue="CurrencyType">
+            @foreach (var c in Enum.GetValues(typeof(CurrencyType)).Cast<CurrencyType>())
+            {
+                <option value="@c">@GetCurrencyDisplay(c)</option>
+            }
+        </InputSelect>
+
+    </p>
+    
+    <p>
+        <label>Initial Bank Amount:</label>
+        <InputNumber @bind-Value="user.BankAmount"  TValue="decimal" />
+    </p>
+
+    <button type="submit">Sing Up</button>
 </EditForm>
 
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <p style="color:red">@errorMessage</p>
-}
+<p>@statusMessage</p>
 
 @code {
-    private RegisterModel registerModel { get; set; } = new RegisterModel();
-    private string errorMessage = string.Empty;
+    private UserModel user = new UserModel();
+    private string statusMessage = string.Empty;
 
-    private async Task HandleRegister()
+    private async Task HandleValidSubmit()
     {
-        errorMessage = string.Empty;
-
-        var user = new User
-        {
-            UserName = registerModel.Email,
-            Email = registerModel.Email,
-            Name = registerModel.Name,
-            LastName = registerModel.LastName,
-            BankAmount = 0
-        };
-
-        var result = await UserManager.CreateAsync(user, registerModel.Password);
-
-        if (result.Succeeded)
-        {
-            // Sign in the user
-            await SignInManager.SignInAsync(user, isPersistent: false);
-
-            // Let Blazor finish the current render cycle before redirecting
-            await Task.Yield();
-
-            // Now redirect to dashboard
-            Navigation.NavigateTo("/dashboard");
-        }
-        else
-        {
-            errorMessage = string.Join(" | ", result.Errors.Select(e => e.Description));
-        }
+        // Hash the password before saving
+        user.Password = PasswordHelper.HashPassword(user.Password);
+        DbContext.Users.Add(user);
+        await DbContext.SaveChangesAsync();
+        statusMessage = "User saved successfully!";
+        // Redirect to dashboard
+        Navigation.NavigateTo("/dashboard");
     }
-
-}
+    private string GetCurrencyDisplay(CurrencyType currency)
+    {
+        return currency switch
+        {
+            CurrencyType.USD => "USD $",
+            CurrencyType.EUR => "EUR €",
+            CurrencyType.GBP => "GBP £",
+            CurrencyType.MXN => "MXN $",
+            CurrencyType.ARS => "ARS $",
+            CurrencyType.CLP => "CLP $",
+            _ => currency.ToString()
+        };
+    }
+} *@

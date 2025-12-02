@@ -1,22 +1,30 @@
-﻿@page "/"
+﻿@* @page "/"
 @layout NoNavLayout
 @using GoalGrower.Models
-@using Microsoft.AspNetCore.Identity
-@inject SignInManager<User> SignInManager
+@using GoalGrower.Data
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext DbContext
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
 
 <PageTitle>Goal Grower - Home Page</PageTitle>
 
-<img src="images\logo.png" alt="Goal Grower Logo" width="500" height="500" class="logo" />
+<img src="images/logo.png" alt="Goal Grower Logo" width="500" height="500" class="logo" />
 <h1>Goal Grower</h1>
 
-<EditForm FormName="LoginForm" Model="loginModel" OnValidSubmit="HandleLogin">
+<EditForm FormName="LoginForm" Model="@loginModel" OnValidSubmit="HandleLogin">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <InputText @bind-Value="loginModel.Email" type="text" id="username" placeholder="Email" />
-    <InputText @bind-Value="loginModel.Password" type="password" id="password" placeholder="Password" />
+    <div>
+        <label>Username</label>
+        <InputText @bind-Value="loginModel.Username" type="text" placeholder="YourUsername1" />
+    </div>
+
+    <div>
+        <label>Password</label>
+        <InputText @bind-Value="loginModel.Password" type="password" placeholder="Password" />
+    </div>
 
     <div class="remember-me">
         <InputCheckbox @bind-Value="loginModel.RememberMe" />
@@ -25,7 +33,7 @@
 
     <button type="submit">Sign In</button>
 
-    <p>New to Goal Grower? <a href="/register">Register Here.</a></p>
+    <p>New to Goal Grower? <a href="/add-user">Register Here.</a></p>
 </EditForm>
 
 @if (!string.IsNullOrEmpty(errorMessage))
@@ -41,20 +49,18 @@
     {
         errorMessage = null;
 
-        var result = await SignInManager.PasswordSignInAsync(
-        loginModel.Email,
-        loginModel.Password,
-        isPersistent: false,
-        lockoutOnFailure: false
-        );
+        // Look up the user by username
+        var user = await DbContext.Users
+            .FirstOrDefaultAsync(u => u.Email == loginModel.Email);
 
-        if (result.Succeeded)
+        if (user != null && PasswordHelper.VerifyPassword(loginModel.Password, user.Password))
         {
+            // Successful login
             Navigation.NavigateTo("/dashboard");
         }
         else
         {
-            errorMessage = "Invalid email or password.";
+            errorMessage = "Invalid username or password.";
         }
     }
-}
+} *@

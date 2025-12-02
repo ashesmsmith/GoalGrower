@@ -17,22 +17,22 @@ namespace GoalGrower.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
 
-            modelBuilder.Entity("GoalGrower.Models.Goal", b =>
+            modelBuilder.Entity("GoalGrower.Models.GoalModel", b =>
                 {
                     b.Property<int>("GoalId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("CompletionDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Description")
+                    b.Property<decimal>("GoalAmount")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("GoalDescription")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("GoalName")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -47,34 +47,32 @@ namespace GoalGrower.Migrations
                     b.ToTable("Goals");
                 });
 
-            modelBuilder.Entity("GoalGrower.Models.Transaction", b =>
+            modelBuilder.Entity("GoalGrower.Models.TransactionModel", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("TransactionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("TEXT");
 
                     b.Property<int?>("GoalId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
+                    b.Property<decimal>("TransactionAmount")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
+                    b.Property<DateTime>("TransactionDate")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("TransactionDescription")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TransactionType")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+                    b.HasKey("TransactionId");
 
                     b.HasIndex("GoalId");
 
@@ -83,7 +81,7 @@ namespace GoalGrower.Migrations
                     b.ToTable("Transactions");
                 });
 
-            modelBuilder.Entity("GoalGrower.Models.User", b =>
+            modelBuilder.Entity("GoalGrower.Models.UserModel", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -98,6 +96,9 @@ namespace GoalGrower.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Currency")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
@@ -107,6 +108,7 @@ namespace GoalGrower.Migrations
 
                     b.Property<string>("LastName")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("LockoutEnabled")
@@ -117,6 +119,7 @@ namespace GoalGrower.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedEmail")
@@ -290,9 +293,9 @@ namespace GoalGrower.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("GoalGrower.Models.Goal", b =>
+            modelBuilder.Entity("GoalGrower.Models.GoalModel", b =>
                 {
-                    b.HasOne("GoalGrower.Models.User", "User")
+                    b.HasOne("GoalGrower.Models.UserModel", "User")
                         .WithMany("Goals")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -301,14 +304,14 @@ namespace GoalGrower.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("GoalGrower.Models.Transaction", b =>
+            modelBuilder.Entity("GoalGrower.Models.TransactionModel", b =>
                 {
-                    b.HasOne("GoalGrower.Models.Goal", "Goal")
+                    b.HasOne("GoalGrower.Models.GoalModel", "Goal")
                         .WithMany("Transactions")
                         .HasForeignKey("GoalId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("GoalGrower.Models.User", "User")
+                    b.HasOne("GoalGrower.Models.UserModel", "User")
                         .WithMany("Transactions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -330,7 +333,7 @@ namespace GoalGrower.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("GoalGrower.Models.User", null)
+                    b.HasOne("GoalGrower.Models.UserModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -339,7 +342,7 @@ namespace GoalGrower.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("GoalGrower.Models.User", null)
+                    b.HasOne("GoalGrower.Models.UserModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -354,7 +357,7 @@ namespace GoalGrower.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GoalGrower.Models.User", null)
+                    b.HasOne("GoalGrower.Models.UserModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -363,19 +366,19 @@ namespace GoalGrower.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("GoalGrower.Models.User", null)
+                    b.HasOne("GoalGrower.Models.UserModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("GoalGrower.Models.Goal", b =>
+            modelBuilder.Entity("GoalGrower.Models.GoalModel", b =>
                 {
                     b.Navigation("Transactions");
                 });
 
-            modelBuilder.Entity("GoalGrower.Models.User", b =>
+            modelBuilder.Entity("GoalGrower.Models.UserModel", b =>
                 {
                     b.Navigation("Goals");
 

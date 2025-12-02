@@ -51,11 +51,15 @@ Each transaction will have a unique ID, name/description, amount, and date.
    - Download required NuGet packages
      - Run: dotnet restore
 
-4. Build the Application
+4. Add local Database
+
+   - Run: dotnet ef database update
+
+5. Build the Application
 
    - Run: dotnet build
 
-5. Run the Application
+6. Run the Application
    - Run: dotnet run
 
 ## Participants

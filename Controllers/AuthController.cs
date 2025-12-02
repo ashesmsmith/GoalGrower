@@ -8,9 +8,9 @@ namespace GoalGrower.Server.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly SignInManager<User> _signInManager;
+        private readonly SignInManager<UserModel> _signInManager;
 
-        public AuthController(SignInManager<User> signInManager)
+        public AuthController(SignInManager<UserModel> signInManager)
         {
             _signInManager = signInManager;
         }

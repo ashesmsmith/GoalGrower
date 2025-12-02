@@ -76,3 +76,7 @@ Desktop.ini
 
 #########################
 # NuGe
+
+####################
+# Ignore SQLite database
+*.db

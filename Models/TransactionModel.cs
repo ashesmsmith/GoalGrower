@@ -23,8 +23,8 @@ namespace GoalGrower.Models
         public DateTime TransactionDate { get; set; }
 
         [Required]
-        public string UserId { get; set; } = string.Empty;  // FK pointing to IdentityUser.Id
-        public User User { get; set; } = null!;             // Navigation property
+        public string UserId { get; set; } = string.Empty;
+        public UserModel User { get; set; } = null!;
 
         [ForeignKey("Goal")]
         public int? GoalId { get; set; }

@@ -1,9 +1,9 @@
 using GoalGrower.Components;
-using GoalGrower.Models;
 using GoalGrower.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using System.Net.Http;
+using GoalGrower.Models;
+using GoalGrower;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,19 +15,14 @@ builder.Services.AddRazorComponents()
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("GoalGrowerDb")));
 
-// ASP.NET Core Identity with relaxed password rules
-builder.Services.AddDefaultIdentity<User>(options =>
+// Identity with custom UserModel
+builder.Services.AddDefaultIdentity<UserModel>(options =>
 {
-    options.Password.RequireDigit = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequiredLength = 8;
+    options.SignIn.RequireConfirmedAccount = false;
 })
 .AddEntityFrameworkStores<AppDbContext>();
 
 // Add authentication and authorization
-builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
 // Add support for Razor Pages, Controllers, and Blazor Server
@@ -38,19 +33,29 @@ builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<AppDbContext>();
+    var userManager = services.GetRequiredService<UserManager<UserModel>>();
+    
+    await DbSeeder.SeedAsync(context, userManager);
+}
+
 app.UseStaticFiles();
 app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
+
 app.MapRazorPages();
 app.MapControllers();
 app.MapRazorComponents<App>()
