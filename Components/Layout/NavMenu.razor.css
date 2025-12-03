@@ -9,10 +9,3 @@ nav img {
     width: 80px;
     height: auto;
 }
-
-nav a {
-    display: inline-block;
-    margin: 0;
-    padding: 0;
-    text-decoration: none;
-}

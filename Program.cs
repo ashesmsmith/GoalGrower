@@ -24,6 +24,7 @@ builder.Services.AddDefaultIdentity<UserModel>(options =>
 
 // Add authentication and authorization
 builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
 
 // Add support for Razor Pages, Controllers, and Blazor Server
 builder.Services.AddControllersWithViews();
@@ -45,7 +46,7 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<AppDbContext>();
     var userManager = services.GetRequiredService<UserManager<UserModel>>();
-    
+
     await DbSeeder.SeedAsync(context, userManager);
 }
 

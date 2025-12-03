@@ -13,6 +13,15 @@
     <p>Type: @transaction.TransactionType</p>
     <p>Amount: @transaction.TransactionAmount</p>
     <p>Description: @transaction.TransactionDescription</p>
+
+    <div class="icon-container">
+        <a class="edit-transaction-icon" href="edittransaction">
+            <img src="/images/edit-icon.png" alt="edit icon" class="icon" />
+        </a>
+        <a class="delete-transaction-icon" href="/deletetransaction">
+            <img src="/images/delete-icon.png" alt="delete icon" class="icon" />
+        </a>
+    </div>
 </div>
 
 @if (!string.IsNullOrEmpty(errorMessage))

@@ -9,20 +9,13 @@
 <h1>Delete Transaction</h1>
 
 <div class="details-container">
-    <p>Date:</p>
-    <p>@transaction.TransactionDate</p>
-
-    <p>Type:</p>
-    <p>@transaction.TransactionType</p>
-
-    <p>Amount:</p>
-    <p>@transaction.TransactionAmount</p>
-
-    <p>Description</p>
-    <p>@transaction.TransactionDescription</p>
+    <p>Date: @transaction.TransactionDate</p>
+    <p>Type: @transaction.TransactionType</p>
+    <p>Amount: @transaction.TransactionAmount</p>
+    <p>Description: @transaction.TransactionDescription</p>
 </div>
 
-<button type="submit" @onclick="HandleDeleteTransaction">Confirm Delete</button>
+<button type="submit" @onclick="HandleDeleteTransaction" class="delete-btn">Confirm Delete</button>
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {

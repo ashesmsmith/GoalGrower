@@ -5,9 +5,9 @@
 <nav>
     @if (isAuthenticated)
     {
-        <NavLink href="/dashboard">Dashboard</NavLink>
         <NavLink href="/logout" class="nav-link">Logout</NavLink>
-        <NavLink href="/dashboard">
+        <NavLink href="/dashboard" class="nav-link">Dashboard</NavLink>
+        <NavLink href="/dashboard" class="nav-link">
             <img src="images\logo.png" alt="Goal Grower Logo" width="500" height="500" />
         </NavLink>
     }
@@ -23,8 +23,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        
-       var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
     }
 }

@@ -11,10 +11,19 @@
     <p>Description: @goal.GoalDescription</p>
     <p>Goal Amount: $@goal.GoalAmount</p>
     <p>Complete By Date: @goal.CompletionDate</p>
+
+    <div class="icon-container">
+        <a class="edit-goal-icon" href="editgoal">
+            <img src="/images/edit-icon.png" alt="edit icon" class="icon" />
+        </a>
+        <a class="delete-goal-icon" href="/deletegoal">
+            <img src="/images/delete-icon.png" alt="delete icon" class="icon" />
+        </a>
+    </div>
 </div>
 
 <h2>Transactions</h2>
-<button type="submit">Add Transaction</button>
+<button type="submit" @onclick="AddTransaction">Add Transaction</button>
 
 <div class="transactions-container">
     @if (transactions != null && transactions.Any())
@@ -22,7 +31,14 @@
         <ul>
             @foreach (var transaction in transactions)
             {
-                <li>@transaction.TransactionDate | @transaction.TransactionType | @transaction.TransactionAmount</li>
+                <li>@transaction.TransactionDate | @transaction.TransactionType | @transaction.TransactionAmount
+                    <a class="edit-transaction-icon" href="edittransaction">
+                        <img src="/images/edit-icon.png" alt="edit icon" class="icon" />
+                    </a>
+                    <a class="delete-transaction-icon" href="/deletetransaction">
+                        <img src="/images/delete-icon.png" alt="delete icon" class="icon" />
+                    </a>
+                </li>
             }
         </ul>
     }
@@ -51,4 +67,8 @@
         // Logic to load goal details here
     }
 
+    private void AddTransaction()
+    {
+        // Navigate, open modal, etc.
+    }
 }

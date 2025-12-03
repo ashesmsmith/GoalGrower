@@ -1,28 +1,76 @@
 @page "/dashboard"
-@using System.ComponentModel.DataAnnotations
+
+@using GoalGrower.Data
+@using GoalGrower.Models
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.EntityFrameworkCore
+@using System.Linq
+
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserManager<UserModel> UserManager
+@inject AppDbContext Db
+
 @attribute [Authorize]
 
 <PageTitle>Goal Grower - Dashboard Page</PageTitle>
 
 
+<AuthorizeView>
+    <Authorized>
+        <h1>Welcome @currentUser?.Name!</h1>
 
-<h1>Welcome {User}!</h1>
+        <button type="submit" class="add-goal-btn" @onclick="AddGoal">Add New Goal</button>
 
-<button type="submit" class="add-goal-btn">Add New Goal</button>
+        <h2>Active Goals</h2>
+        <div class="active-goals-container">
+            @if (goals is null)
+            {
+                <p>Loading...</p>
+            }
+            else if (!goals.Any())
+            {
+                <p>No goals yet. Add one above.</p>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var g in goals)
+                    {
+                        <li class="active-goal">@g.GoalName</li>
+                    }
+                </ul>
+            }
+        </div>
+    </Authorized>
+</AuthorizeView>
 
-<h2>Active Goals</h2>
-<div class="active-goals-container">
-    <ul>
-        <li>{Goal #1 Placeholder}</li>
-        <li>{Goal #2 Placeholder}</li>
-        <li>{Goal #3 Placeholder}</li>
-    </ul>
-</div>
+@code {
+    private UserModel? currentUser;
+    private List<GoalModel>? goals;
 
+    protected override async Task OnInitializedAsync()
+    {
+        // Get ClaimsPrincipal
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var principal = authState.User;
 
-<NavLink href="/addgoal">Go to Add New Goal</NavLink>
-<p>Future Add New Goal Redirect</p>
+        // Get full user from Identity
+        currentUser = await UserManager.GetUserAsync(principal);
 
-<NavLink href="/goaldetails">Go to Goal Details</NavLink>
-<p>Future Goal Details Redirect</p>
+        if (currentUser is not null)
+        {
+            // Load that user's goals
+            goals = await Db.Goals
+            .Where(g => g.UserId == currentUser.Id)
+            .ToListAsync();
+        }
+    }
+
+    private void AddGoal()
+    {
+        // Navigate, open modal, etc.
+    }
+}

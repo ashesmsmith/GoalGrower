@@ -16,20 +16,27 @@
     font-family: var(--secondary-font);
 }
 
-h1 {
-    font-family: var(--primary-font);
-    font-size: 4rem;
-    color: var(--accent-color-1-dark);
-}
-
 body {
     background-color: var(--primary-color);
     text-align: center;
     margin: 1rem;
+    height: 100%;
 }
 
 nav {
     margin: 1rem auto
+}
+
+nav a {
+    text-decoration: none;
+    margin: 0 .5rem;
+}
+
+h1 {
+    font-family: var(--primary-font);
+    font-size: 4rem;
+    font-weight: normal;
+    color: var(--accent-color-1-dark);
 }
 
 form {
@@ -66,14 +73,22 @@ input {
 button {
     background-color: var(--accent-color-2-light);
     background-image: linear-gradient(var(--accent-color-1-light), var(--accent-color-2-light));
+    color: var(--accent-color-1-dark);
     font-size: 1.25rem;
+    font-weight: bold;
     width: 100%;
     align-self: center;
-    margin: 1rem auto;
+    margin: 2rem auto;
     padding: .75rem 1.5rem;
     border: none;
     border-radius: 25px;
     cursor: pointer;
+}
+
+.delete-btn {
+    background-color: red;
+    background-image: none;
+    color: var(--primary-color);
 }
 
 .remember-me {
@@ -104,7 +119,7 @@ ul {
     padding: 0;
 }
 
-li {
+.active-goal {
     margin: 1rem auto;
     padding: .75rem 1.5rem;
     background-color: var(--accent-color-1-light);
@@ -133,4 +148,11 @@ li {
     text-align: left;
     border: 2px solid var(--accent-color-1-dark);
     border-radius: 10px;
+}
+
+.icon {
+    display: inline-block;
+    margin: 1rem auto 0;
+    width: 5%;
+    height: auto;
 }
