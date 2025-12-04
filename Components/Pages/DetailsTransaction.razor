@@ -1,28 +1,43 @@
-@page "/transactiondetails"
-@using System.Reflection.Metadata
+@page "/transactiondetails/{TransactionId:int}"
 @layout MainLayout
 
+@using GoalGrower.Data
 @using GoalGrower.Models
+@using Microsoft.EntityFrameworkCore
 
-<PageTitle>Goal Grower Transaction Details Page</PageTitle>
+@inject AppDbContext _context
+
+<PageTitle>Goal Grower - Transaction Details Page</PageTitle>
 
 <h1>Transaction Details</h1>
 
-<div class="details-container">
-    <p>Date: @transaction.TransactionDate</p>
-    <p>Type: @transaction.TransactionType</p>
-    <p>Amount: @transaction.TransactionAmount</p>
-    <p>Description: @transaction.TransactionDescription</p>
+@if (transaction == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="details-container">
+        <p>Date: @transaction.TransactionDate</p>
+        <p>Type: @transaction.TransactionType</p>
+        <p>Amount: @transaction.TransactionAmount</p>
+        <p>Description: @transaction.TransactionDescription</p>
 
-    <div class="icon-container">
-        <a class="edit-transaction-icon" href="edittransaction">
-            <img src="/images/edit-icon.png" alt="edit icon" class="icon" />
-        </a>
-        <a class="delete-transaction-icon" href="/deletetransaction">
-            <img src="/images/delete-icon.png" alt="delete icon" class="icon" />
-        </a>
+        @if (transaction.Goal != null)
+        {
+            <p>Goal: @transaction.Goal.GoalName</p>
+        }
+
+        <div class="icon-container">
+            <a class="edit-transaction-icon" href="/edittransaction/@transaction.TransactionId">
+                <img src="/images/edit-icon.png" alt="edit icon" class="icon" />
+            </a>
+            <a class="delete-transaction-icon" href="/deletetransaction/@transaction.TransactionId">
+                <img src="/images/delete-icon.png" alt="delete icon" class="icon" />
+            </a>
+        </div>
     </div>
-</div>
+}
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -33,12 +48,25 @@
     [Parameter]
     public int TransactionId { get; set; }
 
-    private TransactionModel transaction = new TransactionModel();
+    private TransactionModel? transaction;
     private string errorMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
+        try
+        {
+            transaction = await _context.Transactions
+            .Include(t => t.Goal)
+            .FirstOrDefaultAsync(t => t.TransactionId == TransactionId);
 
-        // Logic to load goal details here
+            if (transaction == null)
+            {
+                errorMessage = "Transaction not found.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error loading transaction: " + ex.Message;
+        }
     }
 }

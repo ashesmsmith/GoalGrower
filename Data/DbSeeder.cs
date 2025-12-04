@@ -61,6 +61,7 @@ namespace GoalGrower
             };
 
             context.Goals.AddRange(goal1, goal2);
+            await context.SaveChangesAsync();
 
             // --- TRANSACTIONS ---
             var transaction1 = new TransactionModel
@@ -88,7 +89,6 @@ namespace GoalGrower
             };
 
             context.Transactions.AddRange(transaction1, transaction2);
-
             await context.SaveChangesAsync();
         }
     }

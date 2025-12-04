@@ -1,8 +1,12 @@
-@page "/deletetransaction"
+@page "/deletetransaction/{TransactionId:int}"
 @layout MainLayout
-
-@using GoalGrower.Models
 @rendermode InteractiveServer
+
+@using GoalGrower.Data
+@using GoalGrower.Models
+@using Microsoft.EntityFrameworkCore
+
+@inject AppDbContext _context
 
 <PageTitle>Goal Grower - Delete Transaction Page</PageTitle>
 
@@ -26,14 +30,30 @@
     [Parameter]
     public int TransactionId { get; set; }
 
-    private TransactionModel transaction = new TransactionModel();
+    private TransactionModel? transaction;
     private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            transaction = await _context.Transactions
+            .Include(t => t.Goal)
+            .FirstOrDefaultAsync(t => t.TransactionId == TransactionId);
+
+            if (transaction == null)
+            {
+                errorMessage = "Transaction not found.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error loading transaction: " + ex.Message;
+        }
+    }
 
     private async Task HandleDeleteTransaction()
     {
-        errorMessage = string.Empty;
-
-        // Logic to delete the transaction goes here
-        // After deleting the transaction navigate back to goal details
+        // Logic to delete transaction
     }
 }

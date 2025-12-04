@@ -1,21 +1,24 @@
-@page "/edittransaction"
+@page "/edittransaction/{TransactionId:int}"
 @layout MainLayout
-
-@using GoalGrower.Models
 @rendermode InteractiveServer
+
+@using GoalGrower.Data
+@using GoalGrower.Models
+@using Microsoft.EntityFrameworkCore
+
+@inject AppDbContext _context
 
 <PageTitle>Goal Grower - Edit Transaction Page</PageTitle>
 
 <h1>Edit Transaction</h1>
 
-<EditForm FormName="EditTransactionForm" Model="transactionModel" OnValidSubmit="HandleEditTransaction">
+<EditForm FormName="EditTransactionForm" Model="transaction" OnValidSubmit="HandleEditTransaction">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <InputDate id="TransactionDate" @bind-Value="transactionModel.TransactionDate" />
-    <InputText id="TransactionDescription" @bind-Value="transactionModel.TransactionDescription"
-        placeholder="Description" />
-    <InputRadioGroup id="TransactionType" @bind-Value="transactionModel.TransactionType">
+    <InputDate id="TransactionDate" @bind-Value="transaction.TransactionDate" />
+    <InputText id="TransactionDescription" @bind-Value="transaction.TransactionDescription" placeholder="Description" />
+    <InputRadioGroup id="TransactionType" @bind-Value="transaction.TransactionType">
         <label class="radio-inline">
             <InputRadio Value="TransactionModel.TransactionTypeEnum.Deposit" /> Deposit
         </label>
@@ -23,7 +26,7 @@
             <InputRadio Value="TransactionModel.TransactionTypeEnum.Withdrawal" /> Withdrawal
         </label>
     </InputRadioGroup>
-    <InputNumber id="TransactionAmount" @bind-Value="transactionModel.TransactionAmount" />
+    <InputNumber id="TransactionAmount" @bind-Value="transaction.TransactionAmount" />
 
     <button type="submit">Save Changes</button>
 </EditForm>
@@ -36,8 +39,27 @@
 @code {
     [Parameter]
     public int TransactionId { get; set; }
-    private TransactionModel transactionModel { get; set; } = new TransactionModel();
+    private TransactionModel? transaction;
     private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            transaction = await _context.Transactions
+            .Include(t => t.Goal)
+            .FirstOrDefaultAsync(t => t.TransactionId == TransactionId);
+
+            if (transaction == null)
+            {
+                errorMessage = "Transaction not found.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error loading transaction: " + ex.Message;
+        }
+    }
 
     private async Task HandleEditTransaction()
     {
