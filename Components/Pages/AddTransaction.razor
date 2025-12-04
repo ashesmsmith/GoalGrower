@@ -1,8 +1,16 @@
-@page "/addtransaction"
+@page "/addtransaction/{GoalId:int}"
 @layout MainLayout
-
-@using GoalGrower.Models
 @rendermode InteractiveServer
+
+@using GoalGrower.Data
+@using GoalGrower.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+
+@inject AppDbContext _context
+@inject UserManager<UserModel> UserManager
+@inject NavigationManager Nav
 
 <PageTitle>Goal Grower - Add New Transaction Page</PageTitle>
 
@@ -34,14 +42,49 @@
 }
 
 @code {
-    private TransactionModel transactionModel { get; set; } = new TransactionModel();
+    [Parameter]
+    public int GoalId { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; } = default!;
+
+    private TransactionModel transactionModel { get; set; } = new();
     private string errorMessage = string.Empty;
 
     private async Task HandleAddTransaction()
     {
         errorMessage = string.Empty;
 
-        // Logic to add the transaction goes here
-        // After adding the transaction navigate back to Goal Details
+        try
+        {
+            var goal = await _context.Goals.FirstOrDefaultAsync(g => g.GoalId == GoalId);
+            if (goal == null)
+            {
+                errorMessage = "Goal Not Found.";
+                return;
+            }
+
+            var authState = await AuthStateTask;
+            var claimsPrincipal = authState.User;
+
+            var user = await UserManager.GetUserAsync(claimsPrincipal);
+            if (user == null)
+            {
+                errorMessage = "Access Denied. Must be Signed In.";
+                return;
+            }
+
+            transactionModel.GoalId = GoalId;
+            transactionModel.UserId = user.Id;
+
+            _context.Transactions.Add(transactionModel);
+            await _context.SaveChangesAsync();
+
+            Nav.NavigateTo($"/detailsgoal/{GoalId}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
     }
 }
