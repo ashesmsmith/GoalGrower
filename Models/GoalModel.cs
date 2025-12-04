@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -24,7 +25,7 @@ namespace GoalGrower.Models
         public string UserId { get; set; } = string.Empty;
 
         // Navigation property
-        public UserModel User { get; set; } = null!;
+        public UserModel? User { get; set; }
 
         public List<TransactionModel>? Transactions { get; set; }
     }

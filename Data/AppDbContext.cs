@@ -10,14 +10,15 @@ namespace GoalGrower.Data
             : base(options)
         {
         }
-        // public DbSet<UserModel> Users { get; set; }
+
         public DbSet<TransactionModel> Transactions => Set<TransactionModel>();
         public DbSet<GoalModel> Goals => Set<GoalModel>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder); // calls for Identity first
+            base.OnModelCreating(modelBuilder);  // 🚨 MUST be here for Identity tables
 
+            // USER → TRANSACTIONS (1-to-many)
             modelBuilder.Entity<UserModel>()
                 .HasMany(u => u.Transactions)
                 .WithOne(t => t.User)
