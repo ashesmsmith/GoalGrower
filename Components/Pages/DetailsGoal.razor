@@ -1,22 +1,35 @@
-@page "/goaldetails"
+@page "/goaldetails/{GoalId:int}"
 @layout MainLayout
 
+@using GoalGrower.Data
 @using GoalGrower.Models
+@using Microsoft.EntityFrameworkCore
+
+@inject AppDbContext _context
 
 <PageTitle>Goal Grower - Goal Details Page</PageTitle>
 
 <h1>@goal.GoalName Details</h1>
 
 <div class="details-container">
-    <p>Description: @goal.GoalDescription</p>
-    <p>Goal Amount: $@goal.GoalAmount</p>
-    <p>Complete By Date: @goal.CompletionDate</p>
+    <div class="detail">
+        <p>Description:</p>
+        <p>@goal.GoalDescription</p>
+    </div>
+    <div class="detail">
+        <p>Goal Amount:</p>
+        <p>@goal.GoalAmount</p>
+    </div>
+    <div class="detail">
+        <p>Complete By Date:</p>
+        <p>@goal.CompletionDate</p>
+    </div>
 
     <div class="icon-container">
-        <a class="edit-goal-icon" href="editgoal">
+        <a href="/editgoal/@goal.GoalId">
             <img src="/images/edit-icon.png" alt="edit icon" class="icon" />
         </a>
-        <a class="delete-goal-icon" href="/deletegoal">
+        <a href="/deletegoal/@goal.GoalId">
             <img src="/images/delete-icon.png" alt="delete icon" class="icon" />
         </a>
     </div>
@@ -28,16 +41,23 @@
 <div class="transactions-container">
     @if (transactions != null && transactions.Any())
     {
-        <ul>
+        <ul class="transaction-list">
             @foreach (var transaction in transactions)
             {
-                <li>@transaction.TransactionDate | @transaction.TransactionType | @transaction.TransactionAmount
-                    <a class="edit-transaction-icon" href="edittransaction">
-                        <img src="/images/edit-icon.png" alt="edit icon" class="icon" />
-                    </a>
-                    <a class="delete-transaction-icon" href="/deletetransaction">
-                        <img src="/images/delete-icon.png" alt="delete icon" class="icon" />
-                    </a>
+                <li>
+                    <span>
+                        @transaction.TransactionDate.ToString("yyyy-MM-dd") |
+                        @transaction.TransactionType |
+                        @transaction.TransactionAmount
+                    </span>
+                    <div>
+                        <a href="edittransaction/@transaction.TransactionId">
+                            <img src="/images/edit-icon.png" alt="edit icon" class="sm-icon" />
+                        </a>
+                        <a href="/deletetransaction/@transaction.TransactionId">
+                            <img src="/images/delete-icon.png" alt="delete icon" class="sm-icon" />
+                        </a>
+                    </div>
                 </li>
             }
         </ul>
@@ -57,14 +77,31 @@
     [Parameter]
     public int GoalId { get; set; }
 
-    private GoalModel goal = new GoalModel();
+    private GoalModel? goal;
     private List<TransactionModel> transactions = new List<TransactionModel>();
     private string errorMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
 
-        // Logic to load goal details here
+        try
+        {
+            goal = await _context.Goals
+            .Include(g => g.Transactions)
+            .FirstOrDefaultAsync(g => g.GoalId == GoalId);
+
+            if (goal == null)
+            {
+                errorMessage = "Goal not found.";
+                return;
+            }
+
+            transactions = goal.Transactions ?? new List<TransactionModel>();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error loading goal: " + ex.Message;
+        }
     }
 
     private void AddTransaction()

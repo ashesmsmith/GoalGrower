@@ -1,18 +1,31 @@
-@page "/deletegoal"
+@page "/deletegoal/{GoalId:int}"
 @layout MainLayout
 
+@using GoalGrower.Data
 @using GoalGrower.Models
-@using System.Reflection.Metadata
-@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+
+@inject AppDbContext _context
 
 <PageTitle>Goal Grower - Delete Goal Page</PageTitle>
 
 <h1>Delete @goal.GoalName Goal</h1>
 
 <div class="details-container">
-    <p>Description: @goal.GoalDescription</p>
-    <p>Goal Amount: $@goal.GoalAmount</p>
-    <p>Complete By Date: @goal.CompletionDate</p>
+    <div class="detail">
+        <p>Description:</p>
+        <p>@goal.GoalDescription</p>
+    </div>
+
+    <div class="detail">
+        <p>Goal Amount:</p>
+        <p>@goal.GoalAmount</p>
+    </div>
+
+    <div class="detail">
+        <p>Complete By Date:</p>
+        <p>@goal.CompletionDate</p>
+    </div>
 </div>
 
 <button type="submit" @onclick="HandleDeleteGoal" class="delete-btn">Confirm Delete</button>
@@ -26,8 +39,29 @@
     [Parameter]
     public int GoalId { get; set; }
 
-    private GoalModel goal { get; set; } = new GoalModel();
+    private GoalModel? goal;
     private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+            goal = await _context.Goals
+            .Include(g => g.Transactions)
+            .FirstOrDefaultAsync(g => g.GoalId == GoalId);
+
+            if (goal == null)
+            {
+                errorMessage = "Goal not found.";
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error loading goal: " + ex.Message;
+        }
+    }
 
     private async Task HandleDeleteGoal()
     {

@@ -39,7 +39,7 @@
                 <ul>
                     @foreach (var g in goals)
                     {
-                        <li class="active-goal">@g.GoalName</li>
+                        <li class="active-goal"><a href="/goaldetails/@g.GoalId">@g.GoalName</a></li>
                     }
                 </ul>
             }

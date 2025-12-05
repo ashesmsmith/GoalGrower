@@ -18,21 +18,36 @@
 else
 {
     <div class="details-container">
-        <p>Date: @transaction.TransactionDate</p>
-        <p>Type: @transaction.TransactionType</p>
-        <p>Amount: @transaction.TransactionAmount</p>
-        <p>Description: @transaction.TransactionDescription</p>
+        <div class="detail">
+            <p>Goal:</p>
+            <p>@transaction.Goal.GoalName</p>
+        </div>
 
-        @if (transaction.Goal != null)
-        {
-            <p>Goal: @transaction.Goal.GoalName</p>
-        }
+        <div class="detail">
+            <p>Date:</p>
+            <p>@transaction.TransactionDate</p>
+        </div>
+
+        <div class="detail">
+            <p>Type:</p>
+            <p>@transaction.TransactionType</p>
+        </div>
+
+        <div class="detail">
+            <p>Amount:</p>
+            <p>@transaction.TransactionAmount</p>
+        </div>
+
+        <div class="detail">
+            <p>Description:</p>
+            <p>@transaction.TransactionDescription</p>
+        </div>
 
         <div class="icon-container">
-            <a class="edit-transaction-icon" href="/edittransaction/@transaction.TransactionId">
+            <a href="/edittransaction/@transaction.TransactionId">
                 <img src="/images/edit-icon.png" alt="edit icon" class="icon" />
             </a>
-            <a class="delete-transaction-icon" href="/deletetransaction/@transaction.TransactionId">
+            <a href="/deletetransaction/@transaction.TransactionId">
                 <img src="/images/delete-icon.png" alt="delete icon" class="icon" />
             </a>
         </div>

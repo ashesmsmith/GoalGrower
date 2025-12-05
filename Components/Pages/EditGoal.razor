@@ -1,8 +1,11 @@
-@page "/editgoal"
+@page "/editgoal/{GoalId:int}"
 @layout MainLayout
 
+@using GoalGrower.Data
 @using GoalGrower.Models
-@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+
+@inject AppDbContext _context
 
 <PageTitle>Goal Grower - Edit Goal Details Page</PageTitle>
 
@@ -28,8 +31,29 @@
 @code {
     [Parameter]
     public int GoalId { get; set; }
-    private GoalModel goalModel { get; set; } = new GoalModel();
+    private GoalModel? goalModel;
     private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+            goalModel = await _context.Goals
+            .Include(g => g.Transactions)
+            .FirstOrDefaultAsync(g => g.GoalId == GoalId);
+
+            if (goalModel == null)
+            {
+                errorMessage = "Goal not found.";
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error loading goal: " + ex.Message;
+        }
+    }
 
     private async Task HandleEditGoal()
     {

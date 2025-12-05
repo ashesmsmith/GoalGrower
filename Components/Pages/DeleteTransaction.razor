@@ -13,10 +13,27 @@
 <h1>Delete Transaction</h1>
 
 <div class="details-container">
-    <p>Date: @transaction.TransactionDate</p>
-    <p>Type: @transaction.TransactionType</p>
-    <p>Amount: @transaction.TransactionAmount</p>
-    <p>Description: @transaction.TransactionDescription</p>
+    <div class="detail">
+        <p>Goal:</p>
+        <p>@transaction.Goal.GoalName</p>
+    </div>
+
+    <div class="detail">
+        <p>Date:</p>
+        <p>@transaction.TransactionDate</p>
+    </div>
+    <div class="detail">
+        <p>Type:</p>
+        <p>@transaction.TransactionType</p>
+    </div>
+    <div class="detail">
+        <p>Amount:</p>
+        <p>@transaction.TransactionAmount</p>
+    </div>
+    <div class="detail">
+        <p>Description:</p>
+        <p>@transaction.TransactionDescription</p>
+    </div>
 </div>
 
 <button type="submit" @onclick="HandleDeleteTransaction" class="delete-btn">Confirm Delete</button>
