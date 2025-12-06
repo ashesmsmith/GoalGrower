@@ -1,44 +1,64 @@
 @page "/edittransaction/{TransactionId:int}"
 @layout MainLayout
-@rendermode InteractiveServer
 
 @using GoalGrower.Data
 @using GoalGrower.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
 
-@inject AppDbContext _context
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserManager<UserModel> UserManager
+@inject AppDbContext Db
+@inject NavigationManager Nav
 
-<PageTitle>Goal Grower - Edit Transaction Page</PageTitle>
+<PageTitle>Goal Grower - Edit Transaction</PageTitle>
 
 <h1>Edit Transaction</h1>
-
-<EditForm FormName="EditTransactionForm" Model="transaction" OnValidSubmit="HandleEditTransaction">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <InputDate id="TransactionDate" @bind-Value="transaction.TransactionDate" />
-    <InputText id="TransactionDescription" @bind-Value="transaction.TransactionDescription" placeholder="Description" />
-    <InputRadioGroup id="TransactionType" @bind-Value="transaction.TransactionType">
-        <label class="radio-inline">
-            <InputRadio Value="TransactionModel.TransactionTypeEnum.Deposit" /> Deposit
-        </label>
-        <label class="radio-inline">
-            <InputRadio Value="TransactionModel.TransactionTypeEnum.Withdrawal" /> Withdrawal
-        </label>
-    </InputRadioGroup>
-    <InputNumber id="TransactionAmount" @bind-Value="transaction.TransactionAmount" />
-
-    <button type="submit">Save Changes</button>
-</EditForm>
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {
     <p style="color:red">@errorMessage</p>
 }
+else if (transaction == null)
+{
+    <p>Loading transaction...</p>
+}
+else
+{
+    <EditForm FormName="EditTransactionForm" Model="transaction" OnValidSubmit="HandleEditTransaction">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <label>Date:</label>
+        <InputDate class="form-input" @bind-Value="transaction.TransactionDate" />
+
+        <label>Description:</label>
+        <InputText class="form-input" @bind-Value="transaction.TransactionDescription" />
+
+        <label>Type:</label>
+        <InputRadioGroup @bind-Value="transaction.TransactionType">
+            <label class="radio-inline">
+                <InputRadio Value="TransactionModel.TransactionTypeEnum.Deposit" /> Deposit
+            </label>
+            <label class="radio-inline">
+                <InputRadio Value="TransactionModel.TransactionTypeEnum.Withdrawal" /> Withdrawal
+            </label>
+        </InputRadioGroup>
+
+        <label>Amount:</label>
+        <InputNumber class="form-input" @bind-Value="transaction.TransactionAmount" TValue="decimal" />
+
+        <div class="form-button-options">
+            <button type="submit" class="btn-primary">Save Changes</button>
+            <a class="btn-secondary" href="/goaldetails/@transaction.GoalId">Cancel</a>
+        </div>
+    </EditForm>
+}
 
 @code {
-    [Parameter]
-    public int TransactionId { get; set; }
+    [Parameter] public int TransactionId { get; set; }
+
     private TransactionModel? transaction;
     private string errorMessage = string.Empty;
 
@@ -46,26 +66,42 @@
     {
         try
         {
-            transaction = await _context.Transactions
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = await UserManager.GetUserAsync(authState.User);
+
+            if (user == null)
+            {
+                errorMessage = "You must be signed in to edit transactions.";
+                return;
+            }
+
+            transaction = await Db.Transactions
             .Include(t => t.Goal)
-            .FirstOrDefaultAsync(t => t.TransactionId == TransactionId);
+            .FirstOrDefaultAsync(t => t.TransactionId == TransactionId && t.UserId == user.Id);
 
             if (transaction == null)
             {
-                errorMessage = "Transaction not found.";
+                errorMessage = "Transaction not found or you do not have access.";
             }
         }
         catch (Exception ex)
         {
-            errorMessage = "Error loading transaction: " + ex.Message;
+            errorMessage = $"Error loading transaction: {ex.Message}";
         }
     }
 
     private async Task HandleEditTransaction()
     {
-        errorMessage = string.Empty;
+        try
+        {
+            if (transaction == null) return;
 
-        // Logic to update the transaction goes here
-        // After updating the transaction navigate back to Goal Details
+            await Db.SaveChangesAsync();
+            Nav.NavigateTo($"/goaldetails/{transaction.GoalId}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error saving transaction: {ex.Message}";
+        }
     }
 }

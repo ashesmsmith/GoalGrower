@@ -60,11 +60,13 @@ form {
 
 label {
     font-size: 1.25rem;
+    font-weight: 600;
     align-items: flex-start;
 }
 
 .radio-inline {
     display: flex;
+    font-weight: normal;
     align-items: center;
     gap: 5px;
 }

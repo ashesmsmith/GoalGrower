@@ -29,10 +29,17 @@ else
             <p>Description:</p>
             <p>@goal.GoalDescription</p>
         </div>
+
         <div class="detail">
             <p>Goal Amount:</p>
             <p>@($"{@goal.GoalAmount:C}")</p>
         </div>
+
+        <div class="detail">
+            <p>Amount Saved:</p>
+            <p>@($"{goal.Transactions.Sum(t => t.TransactionAmount):C}")</p>
+        </div>
+
         <div class="detail">
             <p>Complete By Date:</p>
             <p>@goal.CompletionDate.ToShortDateString()</p>
@@ -49,40 +56,46 @@ else
     </div>
 
     <h2>Transactions</h2>
-    <a class="add-transaction-btn" href="/addtransaction/@GoalId">Add Transaction</a>
+    <a class="a-btn" href="/addtransaction/@GoalId">Add Transaction</a>
 
-    <div class="transactions-container">
-        @if (transactions.Any())
-        {
-            <div class="transaction-cards">
-                @foreach (var t in transactions)
-                {
-                    <div class="transaction-card">
+    @if (transactions.Any())
+    {
+        <div class="transaction-cards">
+            @foreach (var t in transactions)
+            {
+                <div class="transaction-card"
+                    style="display:flex; justify-content:space-between; align-items:center; cursor:pointer">
+                    <!-- Clickable transaction details -->
+                    <a class="transaction-info" href="/transactiondetails/@t.TransactionId"
+                        style="flex:1; text-decoration:none; color:inherit; display:flex; gap:1rem;">
                         <span class="date">@t.TransactionDate.ToShortDateString()</span>
                         <span class="type">@t.TransactionType</span>
                         <span class="amount">@t.TransactionAmount.ToString("C")</span>
+                    </a>
 
-                        <span class="actions">
-                            <a href="/edittransaction/@t.TransactionId">
-                                <img src="/images/edit-icon.png" class="icon sm-icon" />
-                            </a>
-                            <a href="/deletetransaction/@t.TransactionId">
-                                <img src="/images/delete-icon.png" class="icon sm-icon" />
-                            </a>
-                        </span>
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            <p>Nothing here yet!</p>
-        }
-    </div>
+                    <!-- Edit/Delete icons -->
+                    <span class="actions" style="display:flex; gap:0.5rem;">
+                        <a href="/edittransaction/@t.TransactionId">
+                            <img src="/images/edit-icon.png" class="icon sm-icon" />
+                        </a>
+                        <a href="/deletetransaction/@t.TransactionId">
+                            <img src="/images/delete-icon.png" class="icon sm-icon" />
+                        </a>
+                    </span>
+                </div>
+            }
+        </div>
+
+    }
+    else
+    {
+        <p>Nothing here yet!</p>
+    }
 }
 
 @code {
-    [Parameter] public int GoalId { get; set; }
+    [Parameter]
+    public int GoalId { get; set; }
 
     private GoalModel? goal;
     private List<TransactionModel> transactions = new();

@@ -1,51 +1,62 @@
 @page "/deletetransaction/{TransactionId:int}"
 @layout MainLayout
-@rendermode InteractiveServer
 
 @using GoalGrower.Data
 @using GoalGrower.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
 
-@inject AppDbContext _context
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserManager<UserModel> UserManager
+@inject AppDbContext Db
+@inject NavigationManager Nav
 
-<PageTitle>Goal Grower - Delete Transaction Page</PageTitle>
+<PageTitle>Goal Grower - Delete Transaction</PageTitle>
 
 <h1>Delete Transaction</h1>
-
-<div class="details-container">
-    <div class="detail">
-        <p>Goal:</p>
-        <p>@transaction?.Goal?.GoalName</p>
-    </div>
-
-    <div class="detail">
-        <p>Date:</p>
-        <p>@transaction?.TransactionDate</p>
-    </div>
-    <div class="detail">
-        <p>Type:</p>
-        <p>@transaction?.TransactionType</p>
-    </div>
-    <div class="detail">
-        <p>Amount:</p>
-        <p>@transaction?.TransactionAmount</p>
-    </div>
-    <div class="detail">
-        <p>Description:</p>
-        <p>@transaction?.TransactionDescription</p>
-    </div>
-</div>
-
-<button type="submit" @onclick="HandleDeleteTransaction" class="delete-btn">Confirm Delete</button>
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {
     <p style="color:red">@errorMessage</p>
 }
+else if (transaction == null)
+{
+    <p>Loading transaction...</p>
+}
+else
+{
+    <div class="details-container">
+        <div class="detail">
+            <p>Goal:</p>
+            <p>@transaction.Goal?.GoalName</p>
+        </div>
+        <div class="detail">
+            <p>Date:</p>
+            <p>@transaction.TransactionDate.ToShortDateString()</p>
+        </div>
+        <div class="detail">
+            <p>Type:</p>
+            <p>@transaction.TransactionType</p>
+        </div>
+        <div class="detail">
+            <p>Amount:</p>
+            <p>@transaction.TransactionAmount.ToString("C")</p>
+        </div>
+        <div class="detail">
+            <p>Description:</p>
+            <p>@transaction.TransactionDescription</p>
+        </div>
+    </div>
+
+    <div class="form-button-options">
+        <button class="delete-btn" @onclick="HandleDeleteTransaction">Confirm Delete</button>
+        <a class="btn-secondary" href="/goaldetails/@transaction.GoalId">Cancel</a>
+    </div>
+}
 
 @code {
-    [Parameter]
-    public int TransactionId { get; set; }
+    [Parameter] public int TransactionId { get; set; }
 
     private TransactionModel? transaction;
     private string errorMessage = string.Empty;
@@ -54,23 +65,43 @@
     {
         try
         {
-            transaction = await _context.Transactions
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = await UserManager.GetUserAsync(authState.User);
+
+            if (user == null)
+            {
+                errorMessage = "You must be signed in to delete transactions.";
+                return;
+            }
+
+            transaction = await Db.Transactions
             .Include(t => t.Goal)
-            .FirstOrDefaultAsync(t => t.TransactionId == TransactionId);
+            .FirstOrDefaultAsync(t => t.TransactionId == TransactionId && t.UserId == user.Id);
 
             if (transaction == null)
             {
-                errorMessage = "Transaction not found.";
+                errorMessage = "Transaction not found or you do not have access.";
             }
         }
         catch (Exception ex)
         {
-            errorMessage = "Error loading transaction: " + ex.Message;
+            errorMessage = $"Error loading transaction: {ex.Message}";
         }
     }
 
     private async Task HandleDeleteTransaction()
     {
-        // Logic to delete transaction
+        if (transaction == null) return;
+
+        try
+        {
+            Db.Transactions.Remove(transaction);
+            await Db.SaveChangesAsync();
+            Nav.NavigateTo($"/goaldetails/{transaction.GoalId}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error deleting transaction: {ex.Message}";
+        }
     }
 }

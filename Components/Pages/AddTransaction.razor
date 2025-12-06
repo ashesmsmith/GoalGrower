@@ -1,45 +1,63 @@
 @page "/addtransaction/{GoalId:int}"
 @layout MainLayout
-@rendermode InteractiveServer
 
 @using GoalGrower.Data
 @using GoalGrower.Models
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
+@using System.ComponentModel.DataAnnotations
 
-@inject AppDbContext _context
+@inject AuthenticationStateProvider AuthStateProvider
 @inject UserManager<UserModel> UserManager
+@inject AppDbContext Db
 @inject NavigationManager Nav
 
-<PageTitle>Goal Grower - Add New Transaction Page</PageTitle>
+<PageTitle>Goal Grower - Add New Transaction</PageTitle>
 
-<h1>Add Transaction</h1>
+<div class="add-transaction-container">
+    <h1>Add Transaction</h1>
 
-<EditForm FormName="AddTransactionForm" Model="transactionModel" OnValidSubmit="HandleAddTransaction">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="error-message">@errorMessage</div>
+    }
 
-    <InputDate id="TransactionDate" @bind-Value="transactionModel.TransactionDate" />
-    <InputText id="TransactionDescription" @bind-Value="transactionModel.TransactionDescription"
-        placeholder="Description" />
-    <InputRadioGroup id="TransactionType" @bind-Value="transactionModel.TransactionType">
-        <label class="radio-inline">
-            <InputRadio Value="TransactionModel.TransactionTypeEnum.Deposit" /> Deposit
-        </label>
-        <label class="radio-inline">
-            <InputRadio Value="TransactionModel.TransactionTypeEnum.Withdrawal" /> Withdrawal
-        </label>
-    </InputRadioGroup>
-    <InputNumber id="TransactionAmount" @bind-Value="transactionModel.TransactionAmount" />
+    <EditForm FormName="AddTransactionForm" Model="transactionModel" OnValidSubmit="HandleAddTransaction">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-    <button type="submit">Add Transaction</button>
-</EditForm>
+        <label for="TransactionDate">Date:</label>
+        <InputDate id="TransactionDate" class="form-input" @bind-Value="transactionModel.TransactionDate" />
+        <ValidationMessage For="() => transactionModel.TransactionDate" />
 
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <p style="color:red">@errorMessage</p>
-}
+        <label for="TransactionDescription">Description (optional):</label>
+        <InputText id="TransactionDescription" class="form-input" @bind-Value="transactionModel.TransactionDescription"
+            placeholder="Enter description" />
+        <ValidationMessage For="() => transactionModel.TransactionDescription" />
+
+        <label>Type:</label>
+        <InputRadioGroup @bind-Value="transactionModel.TransactionType">
+            <label class="radio-inline">
+                <InputRadio Value="TransactionModel.TransactionTypeEnum.Deposit" /> Deposit
+            </label>
+            <label class="radio-inline">
+                <InputRadio Value="TransactionModel.TransactionTypeEnum.Withdrawal" /> Withdrawal
+            </label>
+        </InputRadioGroup>
+        <ValidationMessage For="() => transactionModel.TransactionType" />
+
+        <label for="TransactionAmount">Amount:</label>
+        <InputNumber id="TransactionAmount" class="form-input" @bind-Value="transactionModel.TransactionAmount"
+            TValue="decimal" />
+        <ValidationMessage For="() => transactionModel.TransactionAmount" />
+
+        <div class="form-button-options">
+            <button type="submit" class="btn-primary">Add Transaction</button>
+            <a class="btn-secondary" href="/goaldetails/@GoalId">Cancel</a>
+        </div>
+    </EditForm>
+</div>
 
 @code {
     [Parameter]
@@ -48,8 +66,28 @@
     [CascadingParameter]
     private Task<AuthenticationState> AuthStateTask { get; set; } = default!;
 
-    private TransactionModel transactionModel { get; set; } = new();
+    private TransactionModel transactionModel { get; set; } = new TransactionModel()
+    {
+        TransactionDate = DateTime.Today
+    };
+
     private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialize UserId early so validation passes
+        var authState = await AuthStateTask;
+        var user = await UserManager.GetUserAsync(authState.User);
+
+        if (user == null)
+        {
+            errorMessage = "Access denied. You must be signed in.";
+            return;
+        }
+
+        transactionModel.UserId = user.Id;
+        transactionModel.TransactionDate = DateTime.Today; // default to today
+    }
 
     private async Task HandleAddTransaction()
     {
@@ -57,34 +95,29 @@
 
         try
         {
-            var goal = await _context.Goals.FirstOrDefaultAsync(g => g.GoalId == GoalId);
+            // Ensure goal exists
+            var goal = await Db.Goals.FirstOrDefaultAsync(g => g.GoalId == GoalId);
             if (goal == null)
             {
-                errorMessage = "Goal Not Found.";
+                errorMessage = "Goal not found.";
                 return;
             }
 
-            var authState = await AuthStateTask;
-            var claimsPrincipal = authState.User;
-
-            var user = await UserManager.GetUserAsync(claimsPrincipal);
-            if (user == null)
-            {
-                errorMessage = "Access Denied. Must be Signed In.";
-                return;
-            }
-
+            // Assign GoalId (already have UserId)
             transactionModel.GoalId = GoalId;
-            transactionModel.UserId = user.Id;
 
-            _context.Transactions.Add(transactionModel);
-            await _context.SaveChangesAsync();
+            Db.Transactions.Add(transactionModel);
+            await Db.SaveChangesAsync();
 
-            Nav.NavigateTo($"/detailsgoal/{GoalId}");
+            Nav.NavigateTo($"/goaldetails/{GoalId}");
+        }
+        catch (DbUpdateException dbEx)
+        {
+            errorMessage = $"Database error: {dbEx.Message}";
         }
         catch (Exception ex)
         {
-            errorMessage = $"An error occurred: {ex.Message}";
+            errorMessage = $"Error saving transaction: {ex.Message}";
         }
     }
 }
