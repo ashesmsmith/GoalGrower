@@ -20,9 +20,12 @@
     <DataAnnotationsValidator />
     <ValidationSummary />
 
+    <label>Transaction Date</label>
     <InputDate id="TransactionDate" @bind-Value="transactionModel.TransactionDate" />
+    <label>Description</label>
     <InputText id="TransactionDescription" @bind-Value="transactionModel.TransactionDescription"
         placeholder="Description" />
+    <label>Type</label>
     <InputRadioGroup id="TransactionType" @bind-Value="transactionModel.TransactionType">
         <label class="radio-inline">
             <InputRadio Value="TransactionModel.TransactionTypeEnum.Deposit" /> Deposit
@@ -31,9 +34,13 @@
             <InputRadio Value="TransactionModel.TransactionTypeEnum.Withdrawal" /> Withdrawal
         </label>
     </InputRadioGroup>
-    <InputNumber id="TransactionAmount" @bind-Value="transactionModel.TransactionAmount" />
-
-    <button type="submit">Add Transaction</button>
+    <label>Amount</label>
+    <InputNumber id="TransactionAmount" @bind-Value="transactionModel.TransactionAmount" placeholder="1000"/>
+    <div class="form-button-options">
+        <button type="submit">Add Transaction</button>
+        <a class="cancel-button" href="/goaldetails/@GoalId">Cancel</a>
+    </div>
+    
 </EditForm>
 
 @if (!string.IsNullOrEmpty(errorMessage))
@@ -48,9 +55,28 @@
     [CascadingParameter]
     private Task<AuthenticationState> AuthStateTask { get; set; } = default!;
 
-    private TransactionModel transactionModel { get; set; } = new();
+    private TransactionModel transactionModel { get; set; } = new(){
+        TransactionDate = DateTime.Today
+    };
     private string errorMessage = string.Empty;
 
+     protected override async Task OnInitializedAsync()
+    {
+        // Set UserId early to satisfy the [Required] attribute for validation
+        var authState = await AuthStateTask;
+        var principal = authState.User;
+        var user = await UserManager.GetUserAsync(principal);
+
+        if (user is not null)
+        {
+            transactionModel.UserId = user.Id;
+        }
+        else
+        {
+            // Handle unauthenticated user case if necessary (e.g., redirect to login)
+            errorMessage = "Authentication failed. User not found.";
+        }
+    }
     private async Task HandleAddTransaction()
     {
         errorMessage = string.Empty;
@@ -79,8 +105,7 @@
 
             _context.Transactions.Add(transactionModel);
             await _context.SaveChangesAsync();
-
-            Nav.NavigateTo($"/detailsgoal/{GoalId}");
+            Nav.NavigateTo($"/goaldetails/{transactionModel?.Goal.GoalId}");
         }
         catch (Exception ex)
         {

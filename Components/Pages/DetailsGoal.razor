@@ -22,21 +22,24 @@ else
     <div class="details-container">
         <p>Description: @goal.GoalDescription</p>
         <p>Goal Amount: $@goal.GoalAmount.ToString("F2")</p>
-        <p>Complete By Date: @goal.CompletionDate</p>
-<div class="details-container">
-    <div class="detail">
-        <p>Description:</p>
-        <p>@goal.GoalDescription</p>
+        <p>Complete By Date: @goal.CompletionDate.ToShortDateString()</p>
     </div>
-    <div class="detail">
-        <p>Goal Amount:</p>
-        <p>@goal.GoalAmount</p>
-    </div>
-    <div class="detail">
-        <p>Complete By Date:</p>
-        <p>@goal.CompletionDate</p>
-    </div>
-
+    <div class="details-container">
+        <div class="detail">
+            <p>Description:</p>
+            <p>@goal.GoalDescription</p>
+        </div>
+        <div class="detail">
+            <p>Goal Amount:</p>
+            <p>$@goal.GoalAmount</p>
+        </div>
+        <div class="detail">
+            <p>Complete By Date:</p>
+            <p>@goal.CompletionDate.ToShortDateString()</p>
+        </div>
+        <div class="detail-remaining-amount">
+            <p>Just $@CalculateRemainingAmount().ToString("F2") more to reach your goal!</p>
+        </div>
         <div class="icon-container">
             <a class="edit-goal-icon" href="/editgoal/@GoalId">
                 <img src="/images/edit-icon.png" alt="edit icon" class="icon" />
@@ -46,47 +49,39 @@ else
             </a>
         </div>
     </div>
-    <div class="icon-container">
-        <a href="/editgoal/@goal.GoalId">
-            <img src="/images/edit-icon.png" alt="edit icon" class="icon" />
-        </a>
-        <a href="/deletegoal/@goal.GoalId">
-            <img src="/images/delete-icon.png" alt="delete icon" class="icon" />
-        </a>
-    </div>
-</div>
-
-    <h2>Transactions</h2>
-    <a href="/addtransaction/@GoalId">Add Transaction</a>
-    <div class="transactions-container">
-        @if (transactions != null && transactions.Any())
-        {
-            <ul>
-                @foreach (var t in transactions)
-                {
-                    <li>@t.TransactionDate.ToShortDateString() | @t.TransactionType | @t.TransactionAmount
-                        <a class="edit-transaction-icon" href="/edittransaction/@t.TransactionId">
-                            <img src="/images/edit-icon.png" alt="edit icon" class="icon" />
-                        </a>
-                        <a class="delete-transaction-icon" href="/deletetransaction/@t.TransactionId">
-                            <img src="/images/delete-icon.png" alt="delete icon" class="icon" />
-                        </a>
-                    </li>
-                }
-            </ul>
-        }
-        else
-        {
-            <p>Nothing here yet!</p>
-        }
+    <div class="details-container">
+        <h2>Transactions</h2>
+        <a class="add-goal-btn" href="/addtransaction/@GoalId">Add Transaction</a>
+        <div class="transactions-container">
+            @if (transactions != null && transactions.Any())
+            {
+                <ul>
+                    @foreach (var t in transactions)
+                    {
+                        <li>@t.TransactionDate.ToShortDateString() | @t.TransactionType | @t.TransactionAmount
+                            <a class="edit-transaction-icon" href="/edittransaction/@t.TransactionId">
+                                <img src="/images/edit-icon.png" alt="edit icon" class="icon" />
+                            </a>
+                            <a class="delete-transaction-icon" href="/deletetransaction/@t.TransactionId">
+                                <img src="/images/delete-icon.png" alt="delete icon" class="icon" />
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>Nothing here yet!</p>
+            }
+        </div>
     </div>
     
 
 
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <p style="color:red">@errorMessage</p>
-}
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p style="color:red">@errorMessage</p>
+    }
 }
 
 @code {
@@ -121,4 +116,23 @@ else
             errorMessage = $"Error loading goal details: {ex.Message}";
         }
     }
+    private decimal CalculateRemainingAmount()
+    {
+        if (goal == null) return 0;
+
+        decimal totalDeposits = transactions
+            .Where(t => t.TransactionType == TransactionModel.TransactionTypeEnum.Deposit)
+            .Sum(t => t.TransactionAmount);
+
+        decimal totalWithdrawals = transactions
+            .Where(t => t.TransactionType == TransactionModel.TransactionTypeEnum.Withdrawal)
+            .Sum(t => t.TransactionAmount);
+
+        decimal currentSaved = totalDeposits - totalWithdrawals;
+
+        decimal remaining = goal.GoalAmount - currentSaved;
+
+        return remaining < 0 ? 0 : remaining; // never show negative remaining
+    }
+
 }

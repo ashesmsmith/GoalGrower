@@ -5,6 +5,7 @@
 @using GoalGrower.Data
 @using GoalGrower.Models
 @using Microsoft.EntityFrameworkCore
+@inject NavigationManager Navigation
 
 @inject AppDbContext _context
 
@@ -36,7 +37,11 @@
     </div>
 </div>
 
-<button type="submit" @onclick="HandleDeleteTransaction" class="delete-btn">Confirm Delete</button>
+<div class="form-button-options">
+    <button type="submit" @onclick="HandleDeleteTransaction" class="delete-btn">Confirm Delete</button>
+    <a class="cancel-button" href="/goaldetails/@transaction?.Goal?.GoalId">Cancel</a>
+</div>
+
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -71,6 +76,29 @@
 
     private async Task HandleDeleteTransaction()
     {
-        // Logic to delete transaction
+        errorMessage = string.Empty;
+
+        try
+        {
+            if (transaction == null)
+            {
+                errorMessage = "Transaction not found.";
+                return;
+            }
+
+            // Keep the goal ID so the redirect works after deletion
+            var goalId = transaction.GoalId;
+
+            _context.Transactions.Remove(transaction);
+            await _context.SaveChangesAsync();
+
+            Navigation.NavigateTo($"/goaldetails/{goalId}");
+            
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error deleting transaction: {ex.Message}";
+        }
     }
+
 }

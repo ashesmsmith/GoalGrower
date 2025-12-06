@@ -5,36 +5,60 @@
 @using GoalGrower.Data
 @using GoalGrower.Models
 @using Microsoft.EntityFrameworkCore
+@inject NavigationManager Navigation
 
 @inject AppDbContext _context
 
 <PageTitle>Goal Grower - Edit Transaction Page</PageTitle>
 
-<h1>Edit Transaction</h1>
 
-<EditForm FormName="EditTransactionForm" Model="transaction" OnValidSubmit="HandleEditTransaction">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+@if (transaction == null)
+{
+    <p>Loading...</p>
+}
+else
+    {
+    <h1>Edit Transaction</h1>
 
-    <InputDate id="TransactionDate" @bind-Value="transaction.TransactionDate" />
-    <InputText id="TransactionDescription" @bind-Value="transaction.TransactionDescription" placeholder="Description" />
-    <InputRadioGroup id="TransactionType" @bind-Value="transaction.TransactionType">
-        <label class="radio-inline">
-            <InputRadio Value="TransactionModel.TransactionTypeEnum.Deposit" /> Deposit
-        </label>
-        <label class="radio-inline">
-            <InputRadio Value="TransactionModel.TransactionTypeEnum.Withdrawal" /> Withdrawal
-        </label>
-    </InputRadioGroup>
-    <InputNumber id="TransactionAmount" @bind-Value="transaction.TransactionAmount" />
+    <EditForm FormName="EditTransactionForm" Model="transaction" OnValidSubmit="HandleEditTransaction">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-    <button type="submit">Save Changes</button>
-</EditForm>
+        <div>
+            <label>Date</label>
+            <InputDate class="form-input" id="TransactionDate" @bind-Value="transaction.TransactionDate" />
+        </div>
+        <div>
+            <label>Description</label>
+            <InputText class="form-input" id="TransactionDescription" @bind-Value="transaction.TransactionDescription" placeholder="Description" />
+        </div>
+        <div>
+            <label>Type</label>
+            <InputRadioGroup class="form-input" id="TransactionType" @bind-Value="transaction.TransactionType">
+                <label class="radio-inline">
+                    <InputRadio Value="TransactionModel.TransactionTypeEnum.Deposit" /> Deposit
+                </label>
+                <label class="radio-inline">
+                    <InputRadio Value="TransactionModel.TransactionTypeEnum.Withdrawal" /> Withdrawal
+                </label>
+            </InputRadioGroup>
+        </div>
+        <div>
+            <label>Amount</label>
+            <InputNumber class="form-input" id="TransactionAmount" @bind-Value="transaction.TransactionAmount" />
+        </div>
 
+        <div class="form-button-options">
+            <button type="submit">Save Changes</button>
+            <a class="cancel-button" href="/transactiondetails/@TransactionId">Cancel</a>
+        </div>
+    </EditForm>
+}
 @if (!string.IsNullOrEmpty(errorMessage))
 {
     <p style="color:red">@errorMessage</p>
 }
+
 
 @code {
     [Parameter]
@@ -64,8 +88,17 @@
     private async Task HandleEditTransaction()
     {
         errorMessage = string.Empty;
+        try
+        {
+            _context.Transactions.Update(transaction!);
+            await _context.SaveChangesAsync();
 
-        // Logic to update the transaction goes here
-        // After updating the transaction navigate back to Goal Details
+            // Redirect back to the goal details page
+            Navigation.NavigateTo($"/goaldetails/{transaction!.GoalId}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error saving transaction: " + ex.Message;
+        }
     }
 }
