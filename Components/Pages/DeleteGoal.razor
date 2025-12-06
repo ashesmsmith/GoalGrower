@@ -24,23 +24,22 @@ else
         <p>Goal Amount: $@goal.GoalAmount</p>
         <p>Complete By Date: @goal.CompletionDate</p>
     </div>
-<div class="details-container">
-    <div class="detail">
-        <p>Description:</p>
-        <p>@goal.GoalDescription</p>
-    </div>
+    <div class="details-container">
+        <div class="detail">
+            <p>Description:</p>
+            <p>@goal.GoalDescription</p>
+        </div>
 
-    <div class="detail">
-        <p>Goal Amount:</p>
-        <p>@goal.GoalAmount</p>
-    </div>
+        <div class="detail">
+            <p>Goal Amount:</p>
+            <p>@goal.GoalAmount</p>
+        </div>
 
-    <div class="detail">
-        <p>Complete By Date:</p>
-        <p>@goal.CompletionDate</p>
+        <div class="detail">
+            <p>Complete By Date:</p>
+            <p>@goal.CompletionDate</p>
+        </div>
     </div>
-</div>
-
     
     <div class="form-button-options">
         <button type="submit" @onclick="HandleDeleteGoal" class="delete-btn">Confirm Delete</button>

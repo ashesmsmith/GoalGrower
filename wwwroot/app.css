@@ -41,6 +41,14 @@ h1 {
     font-size: 4rem;
     font-weight: normal;
     color: var(--accent-color-1-dark);
+    margin-bottom: 1rem;
+}
+h2 {
+    font-family: var(--secondary-font);
+    font-size: 2.5rem;
+    font-weight: normal;
+    color: var(--accent-color-1-dark);
+    margin-top: 1rem;
 }
 
 form {
@@ -89,6 +97,34 @@ button {
     border-radius: 25px;
     cursor: pointer;
 }
+.add-goal-btn{
+    display:inline-block;
+    background-color: var(--accent-color-1-dark);
+    color: var(--secondary-color);
+    font-size: 1.25rem;
+    font-weight: bold;
+    width: 100%;
+    align-self: center;
+    margin-top: 2rem;
+    padding: .75rem 1.5rem;
+    border: none;
+    border-radius: 25px;
+    text-decoration: none;
+}
+
+.cancel-button{
+    background-color: var(--accent-color-2-dark);
+    color: var(--secondary-color);
+    font-size: 1.25rem;
+    font-weight: bold;
+    width: 100%;
+    align-self: center;
+    margin: 2rem auto;
+    padding: .75rem 1.5rem;
+    border: none;
+    border-radius: 25px;
+    text-decoration: none;
+}
 
 .delete-btn {
     background-color: red;
@@ -117,6 +153,10 @@ button {
     margin: 1rem auto;
     padding: 1rem;
     border-top: 1px solid var(--accent-color-1-dark);
+}
+.transactions-container{
+    margin: 1rem auto;
+    padding: 1rem;
 }
 
 ul {
@@ -186,6 +226,16 @@ ul {
 }
 
 .detail p:nth-child(1) {
+    margin-bottom: .5rem;
+    font-weight: 600;
+}
+.detail-remaining-amount{
+    margin: 1rem 0;
+    background-color: var(--accent-color-2-dark);
+    border-radius: 4px;
+    padding: 1rem;
+}
+.detail-remaining-amount p{
     margin-bottom: .5rem;
     font-weight: 600;
 }
