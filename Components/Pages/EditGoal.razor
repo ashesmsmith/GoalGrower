@@ -3,71 +3,95 @@
 
 @using GoalGrower.Data
 @using GoalGrower.Models
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
-@rendermode InteractiveServer
-@inject NavigationManager Navigation
+
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserManager<UserModel> UserManager
 @inject AppDbContext Db
+@inject NavigationManager Nav
 
-<PageTitle>Edit Goal Details Page</PageTitle>
+<PageTitle>Edit Goal Details</PageTitle>
 
-@if (goalModel == null)
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+else if (goal == null)
 {
     <p>Loading goal...</p>
 }
 else
-        {
+{
     <h1>Edit Goal Details</h1>
 
-    <EditForm FormName="EditGoalForm" Model="goalModel" OnValidSubmit="HandleEditGoal">
+    <EditForm Model="goal" OnValidSubmit="HandleEditGoal">
         <DataAnnotationsValidator />
         <ValidationSummary />
 
-        <div class>
+        <div class="form-group">
             <label>Goal Name</label>
-            <InputText class="form-input" @bind-Value="goalModel.GoalName" />
+            <InputText class="form-input" @bind-Value="goal.GoalName" />
         </div>
 
-        <div class>
+        <div class="form-group">
             <label>Description</label>
-            <InputText class="form-input" @bind-Value="goalModel.GoalDescription" />
+            <InputText class="form-input" @bind-Value="goal.GoalDescription" />
         </div>
 
-        <div class>
+        <div class="form-group">
             <label>Goal Amount</label>
-            <InputNumber class="form-input" @bind-Value="goalModel.GoalAmount" />
+            <InputNumber class="form-input" @bind-Value="goal.GoalAmount" />
         </div>
 
-        <div>
+        <div class="form-group">
             <label>Completion Date</label>
-            <InputDate class="form-input" @bind-Value="goalModel.CompletionDate" />
+            <InputDate class="form-input" @bind-Value="goal.CompletionDate" />
         </div>
+
         <div class="form-button-options">
-            <button type="submit">Save Changes</button>
+            <button type="submit" class="save-button">Save Changes</button>
             <a class="cancel-button" href="/goaldetails/@GoalId">Cancel</a>
         </div>
     </EditForm>
-
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <p style="color:red">@errorMessage</p>
-    }
 }
 
 @code {
-    [Parameter]
-    public int GoalId { get; set; }
-    private GoalModel? goalModel;
+    [Parameter] public int GoalId { get; set; }
+
+    private GoalModel? goal;
     private string errorMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            goalModel = await Db.Goals.Include(g => g.Transactions).FirstOrDefaultAsync(g => g.GoalId == GoalId);
+            // ------------------------
+            // 🔐 Get logged-in user
+            // ------------------------
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
 
-            if (goalModel == null)
+            if (!user.Identity?.IsAuthenticated ?? false)
             {
-                errorMessage = "Goal not found.";
+                errorMessage = "You must be logged in to access this page.";
+                return;
+            }
+
+            var userId = UserManager.GetUserId(user);
+
+            // ------------------------
+            // 🔐 Load ONLY a goal owned by this user
+            // ------------------------
+            goal = await Db.Goals
+            .AsTracking()
+            .FirstOrDefaultAsync(g => g.GoalId == GoalId && g.UserId == userId);
+
+            if (goal == null)
+            {
+                errorMessage = "Goal not found or you do not have permission to edit this goal.";
             }
         }
         catch (Exception ex)
@@ -75,14 +99,13 @@ else
             errorMessage = $"Error loading goal: {ex.Message}";
         }
     }
+
     private async Task HandleEditGoal()
     {
         try
         {
-            Db.Goals.Update(goalModel!);
             await Db.SaveChangesAsync();
-
-            Navigation.NavigateTo($"/goaldetails/{GoalId}");
+            Nav.NavigateTo($"/goaldetails/{GoalId}");
         }
         catch (Exception ex)
         {

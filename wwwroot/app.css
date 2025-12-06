@@ -43,6 +43,10 @@ h1 {
     color: var(--accent-color-1-dark);
 }
 
+h2 {
+    margin: 1.5rem auto 0;
+}
+
 form {
     display: flex;
     flex-direction: column;
@@ -75,7 +79,7 @@ input {
     border-bottom: 1px solid var(--secondary-color);
 }
 
-button {
+button, .a-btn {
     background-color: var(--accent-color-2-light);
     background-image: linear-gradient(var(--accent-color-1-light), var(--accent-color-2-light));
     color: var(--accent-color-1-dark);
@@ -90,27 +94,23 @@ button {
     cursor: pointer;
 }
 
+.a-btn {
+    display: block;
+    text-decoration: none;;
+}
+
 .delete-btn {
     background-color: red;
     background-image: none;
     color: var(--primary-color);
 }
 
-.remember-me {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    white-space: nowrap;
-}
-
-.remember-me label {
-    font-size: 1rem;;
-}
-
-.remember-me input[type="checkbox"] {
-    width: auto;
-    margin: 0;
-    padding: 0;
+.form-button-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    justify-content: center;
 }
 
 .active-goals-container {
@@ -203,4 +203,72 @@ ul {
     padding: .75rem;
     width: 40px;
     height: auto;
+}
+
+.goal-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    margin: 1rem auto;
+    padding: 1rem;
+    width: 100%;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.goal-card:nth-child(odd) {
+    background-color: var(--accent-color-1-light);
+}
+
+.goal-card:nth-child(even) {
+    background-color: var(--accent-color-2-light);
+}
+
+.goal-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.transaction-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.transaction-card {
+    display: grid;
+    grid-template-columns: 120px 140px 1fr auto;
+    align-items: center;
+    background: #f5f5f5;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+    font-size: 0.95rem;
+
+    transition: background-color 0.15s ease;
+}
+
+.transaction-card:hover {
+    background-color: #eaeaea;
+}
+
+.transaction-card span {
+    white-space: nowrap;
+}
+
+.amount {
+    font-weight: 700;
+    text-align: right;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.sm-icon:hover {
+    opacity: 0.7;
 }

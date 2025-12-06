@@ -18,25 +18,20 @@ namespace GoalGrower.Data
         {
             base.OnModelCreating(modelBuilder); // calls for Identity first
 
-            modelBuilder.Entity<UserModel>()
-                .HasMany(u => u.Transactions)
-                .WithOne(t => t.User)
-                .HasForeignKey(t => t.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             // USER → GOALS (1-to-many)
             modelBuilder.Entity<UserModel>()
                 .HasMany(u => u.Goals)
                 .WithOne(g => g.User)
                 .HasForeignKey(g => g.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade); // Deleting a user deletes their goals
 
             // GOAL → TRANSACTIONS (1-to-many — optional link)
             modelBuilder.Entity<GoalModel>()
                 .HasMany(g => g.Transactions)
                 .WithOne(t => t.Goal)
                 .HasForeignKey(t => t.GoalId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .IsRequired() // Transactions must have a Goal
+                .OnDelete(DeleteBehavior.Cascade); // Deleting a goal deletes its transactions
         }
     }
 }

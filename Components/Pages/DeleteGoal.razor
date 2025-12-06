@@ -1,56 +1,53 @@
 @page "/deletegoal/{GoalId:int}"
 @layout MainLayout
-@rendermode InteractiveServer
 
 @using GoalGrower.Data
 @using GoalGrower.Models
-@using System.Reflection.Metadata
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
-@inject NavigationManager Navigation
-@inject AppDbContext _context
 
-<PageTitle>Delete Goal Page</PageTitle>
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserManager<UserModel> UserManager
+@inject AppDbContext Db
+@inject NavigationManager Nav
 
-@if (goal == null)
+<PageTitle>Goal Grower - Delete Goal Page</PageTitle>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+else if (goal == null)
 {
     <p>Loading goal...</p>
 }
 else
-    {
-    <h1>Delete @goal.GoalName Goal</h1>
+{
+    <h1>Delete Goal</h1>
+    <h2>@goal.GoalName</h2>
 
     <div class="details-container">
-        <p>Description: @goal.GoalDescription</p>
-        <p>Goal Amount: $@goal.GoalAmount</p>
-        <p>Complete By Date: @goal.CompletionDate</p>
-    </div>
-<div class="details-container">
-    <div class="detail">
-        <p>Description:</p>
-        <p>@goal.GoalDescription</p>
+        <div class="detail">
+            <p>Description:</p>
+            <p>@goal.GoalDescription</p>
+        </div>
+
+        <div class="detail">
+            <p>Goal Amount:</p>
+            <p>@goal.GoalAmount.ToString("C")</p>
+        </div>
+
+        <div class="detail">
+            <p>Complete By Date:</p>
+            <p>@goal.CompletionDate.ToShortDateString()</p>
+        </div>
     </div>
 
-    <div class="detail">
-        <p>Goal Amount:</p>
-        <p>@goal.GoalAmount</p>
-    </div>
-
-    <div class="detail">
-        <p>Complete By Date:</p>
-        <p>@goal.CompletionDate</p>
-    </div>
-</div>
-
-    
     <div class="form-button-options">
-        <button type="submit" @onclick="HandleDeleteGoal" class="delete-btn">Confirm Delete</button>
+        <button @onclick="HandleDeleteGoal" class="delete-btn">Confirm Delete</button>
         <a class="cancel-button" href="/goaldetails/@GoalId">Cancel</a>
     </div>
-
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <p style="color:red">@errorMessage</p>
-    }
 }
 
 @code {
@@ -62,25 +59,37 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-
         try
         {
-            goal = await _context.Goals
-            .Where(g => g.GoalId == GoalId).FirstOrDefaultAsync(g => g.GoalId == GoalId);
+            // Validate authentication
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (!user.Identity?.IsAuthenticated ?? false)
+            {
+                errorMessage = "You must be logged in to delete a goal.";
+                return;
+            }
+
+            var userId = UserManager.GetUserId(user);
+
+            // Secure query — user must own the goal
+            goal = await Db.Goals
+            .FirstOrDefaultAsync(g => g.GoalId == GoalId && g.UserId == userId);
 
             if (goal == null)
             {
-                errorMessage = "Goal not found.";
+                errorMessage = "Goal not found or you do not have permission to delete it.";
                 return;
             }
         }
         catch (Exception ex)
         {
-            errorMessage = "Error loading goal: " + ex.Message;
+            errorMessage = $"Error loading goal: {ex.Message}";
         }
     }
 
-     private async Task HandleDeleteGoal()
+    private async Task HandleDeleteGoal()
     {
         if (goal == null)
         {
@@ -90,11 +99,10 @@ else
 
         try
         {
-            _context.Goals.Remove(goal);
-            await _context.SaveChangesAsync();
+            Db.Goals.Remove(goal);
+            await Db.SaveChangesAsync();
 
-            // Navigate back to dashboard or goals list
-            Navigation.NavigateTo("/dashboard");
+            Nav.NavigateTo("/dashboard");
         }
         catch (Exception ex)
         {

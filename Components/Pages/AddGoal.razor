@@ -1,15 +1,13 @@
 @page "/addgoal"
 @layout MainLayout
+
 @using GoalGrower.Data
+@using GoalGrower.Models
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
-@using GoalGrower.Models
-@using System.ComponentModel.DataAnnotations
+@using Microsoft.EntityFrameworkCore
 
-@rendermode InteractiveServer
-@inject UserManager<UserModel> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
 @inject UserManager<UserModel> UserManager
 @inject AppDbContext Db
@@ -22,31 +20,27 @@
 <EditForm FormName="AddGoalForm" Model="goalModel" OnValidSubmit="HandleAddGoal">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <div>
-        <label for="GoalName">Goal Name</label>
-        <InputText id="GoalName" @bind-Value="goalModel.GoalName" placeholder="Goal Name" />
-        <ValidationMessage For="() => goalModel.GoalName" />
-    </div>
-    <div>
-        <label for="GoalDescription">Goal Description</label>
-        <InputText id="GoalDescription" @bind-Value="goalModel.GoalDescription" placeholder="Description" />
-        <ValidationMessage For="() => goalModel.GoalDescription" />
-    </div>
-    <div>
-        <label for="GoalAmount">Amount to be Saved</label>
-        <InputNumber id="GoalAmount" @bind-Value="goalModel.GoalAmount" TValue="decimal"/>
-        <ValidationMessage For="() => goalModel.GoalAmount" />
-    </div>
-    <div>
-        <label for="CompletionDate">Expected Completion Date</label>
-        <InputDate id="CompletionDate" @bind-Value="goalModel.CompletionDate" TValue="DateTime"/>
-        <ValidationMessage For="() => goalModel.CompletionDate" />
-    </div>
+
+    <label for="GoalName">Name:</label>
+    <InputText id="GoalName" @bind-Value="goalModel.GoalName" placeholder="Goal Name" />
+    <ValidationMessage For="() => goalModel.GoalName" />
+
+    <label for="GoalDescription">Description:</label>
+    <InputText id="GoalDescription" @bind-Value="goalModel.GoalDescription" placeholder="Description" />
+    <ValidationMessage For="() => goalModel.GoalDescription" />
+
+    <label for="GoalAmount">Amount:</label>
+    <InputNumber id="GoalAmount" @bind-Value="goalModel.GoalAmount" TValue="decimal" />
+    <ValidationMessage For="() => goalModel.GoalAmount" />
+
+    <label for="CompletionDate">Completion Date:</label>
+    <InputDate id="CompletionDate" @bind-Value="goalModel.CompletionDate" TValue="DateTime" />
+    <ValidationMessage For="() => goalModel.CompletionDate" />
+
     <div class="form-button-options">
         <button type="submit">Add Goal</button>
         <a class="cancel-button" href="/dashboard">Cancel</a>
     </div>
-    
 </EditForm>
 
 @if (!string.IsNullOrEmpty(errorMessage))
@@ -57,7 +51,8 @@
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> AuthStateTask { get; set; } = default!;
-    private GoalModel goalModel { get; set; } = new GoalModel(){
+    private GoalModel goalModel { get; set; } = new GoalModel()
+    {
         CompletionDate = DateTime.Today.AddDays(1) // default to tomorrow
     };
     private string errorMessage = string.Empty;
@@ -84,8 +79,8 @@
         errorMessage = string.Empty;
         try
         {
-        // Get current user
-         if (string.IsNullOrEmpty(goalModel.UserId))
+            // Get current user
+            if (string.IsNullOrEmpty(goalModel.UserId))
             {
                 errorMessage = "User not found.";
                 return;

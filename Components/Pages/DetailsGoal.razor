@@ -1,41 +1,42 @@
 @page "/goaldetails/{GoalId:int}"
 @layout MainLayout
-@rendermode InteractiveServer
 
 @using GoalGrower.Data
 @using GoalGrower.Models
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
-@inject NavigationManager Navigation
+
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserManager<UserModel> UserManager
 @inject AppDbContext Db
+@inject NavigationManager Nav
 
-<PageTitle>Goal Details Page</PageTitle>
-
+<PageTitle>Goal Grower - Goal Details</PageTitle>
 
 @if (goal == null)
 {
-    <p>Loading goal...</p>
+    <p>@errorMessage ?? "Loading goal..."</p>
 }
 else
-    {
-    <h1>@goal.GoalName Details</h1>
+{
+    <h1>Goal Details</h1>
+    <h2>@goal.GoalName</h2>
 
     <div class="details-container">
-        <p>Description: @goal.GoalDescription</p>
-        <p>Goal Amount: $@goal.GoalAmount.ToString("F2")</p>
-        <p>Complete By Date: @goal.CompletionDate</p>
-<div class="details-container">
-    <div class="detail">
-        <p>Description:</p>
-        <p>@goal.GoalDescription</p>
-    </div>
-    <div class="detail">
-        <p>Goal Amount:</p>
-        <p>@goal.GoalAmount</p>
-    </div>
-    <div class="detail">
-        <p>Complete By Date:</p>
-        <p>@goal.CompletionDate</p>
-    </div>
+        <div class="detail">
+            <p>Description:</p>
+            <p>@goal.GoalDescription</p>
+        </div>
+        <div class="detail">
+            <p>Goal Amount:</p>
+            <p>@($"{@goal.GoalAmount:C}")</p>
+        </div>
+        <div class="detail">
+            <p>Complete By Date:</p>
+            <p>@goal.CompletionDate.ToShortDateString()</p>
+        </div>
 
         <div class="icon-container">
             <a class="edit-goal-icon" href="/editgoal/@GoalId">
@@ -46,75 +47,73 @@ else
             </a>
         </div>
     </div>
-    <div class="icon-container">
-        <a href="/editgoal/@goal.GoalId">
-            <img src="/images/edit-icon.png" alt="edit icon" class="icon" />
-        </a>
-        <a href="/deletegoal/@goal.GoalId">
-            <img src="/images/delete-icon.png" alt="delete icon" class="icon" />
-        </a>
-    </div>
-</div>
 
     <h2>Transactions</h2>
-    <a href="/addtransaction/@GoalId">Add Transaction</a>
+    <a class="add-transaction-btn" href="/addtransaction/@GoalId">Add Transaction</a>
+
     <div class="transactions-container">
-        @if (transactions != null && transactions.Any())
+        @if (transactions.Any())
         {
-            <ul>
+            <div class="transaction-cards">
                 @foreach (var t in transactions)
                 {
-                    <li>@t.TransactionDate.ToShortDateString() | @t.TransactionType | @t.TransactionAmount
-                        <a class="edit-transaction-icon" href="/edittransaction/@t.TransactionId">
-                            <img src="/images/edit-icon.png" alt="edit icon" class="icon" />
-                        </a>
-                        <a class="delete-transaction-icon" href="/deletetransaction/@t.TransactionId">
-                            <img src="/images/delete-icon.png" alt="delete icon" class="icon" />
-                        </a>
-                    </li>
+                    <div class="transaction-card">
+                        <span class="date">@t.TransactionDate.ToShortDateString()</span>
+                        <span class="type">@t.TransactionType</span>
+                        <span class="amount">@t.TransactionAmount.ToString("C")</span>
+
+                        <span class="actions">
+                            <a href="/edittransaction/@t.TransactionId">
+                                <img src="/images/edit-icon.png" class="icon sm-icon" />
+                            </a>
+                            <a href="/deletetransaction/@t.TransactionId">
+                                <img src="/images/delete-icon.png" class="icon sm-icon" />
+                            </a>
+                        </span>
+                    </div>
                 }
-            </ul>
+            </div>
         }
         else
         {
             <p>Nothing here yet!</p>
         }
     </div>
-    
-
-
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <p style="color:red">@errorMessage</p>
-}
 }
 
 @code {
-    [Parameter]
-    public int GoalId { get; set; }
+    [Parameter] public int GoalId { get; set; }
 
     private GoalModel? goal;
-    private List<TransactionModel> transactions = new List<TransactionModel>();
-    private string errorMessage = string.Empty;
+    private List<TransactionModel> transactions = new();
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            goal = await Db.Goals
-                .Where(g => g.GoalId == GoalId)
-                .FirstOrDefaultAsync();
+            // Get signed-in user
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = await UserManager.GetUserAsync(authState.User);
 
-            if (goal == null)
+            if (user == null)
             {
-                errorMessage = "Goal not found.";
+                errorMessage = "You must be logged in to view this goal.";
                 return;
             }
 
-            transactions = await Db.Transactions
-                .Where(t => t.GoalId == GoalId)
-                .OrderByDescending(t => t.TransactionDate)
-                .ToListAsync();
+            // Load the goal with its transactions, only if it belongs to the user
+            goal = await Db.Goals
+            .Include(g => g.Transactions.OrderByDescending(t => t.TransactionDate))
+            .FirstOrDefaultAsync(g => g.GoalId == GoalId && g.UserId == user.Id);
+
+            if (goal == null)
+            {
+                errorMessage = "Goal not found or you do not have access.";
+                return;
+            }
+
+            transactions = goal.Transactions.ToList();
         }
         catch (Exception ex)
         {
